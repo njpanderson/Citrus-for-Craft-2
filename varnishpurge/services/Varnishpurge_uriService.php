@@ -3,7 +3,7 @@ namespace Craft;
 
 class Varnishpurge_uriService extends Varnishpurge_BaseHelper
 {
-    public function saveURIEntry($pageUri, $entryId)
+    public function saveURIEntry(string $pageUri, int $entryId)
     {
         $uriHash = $this->hash($pageUri);
 
@@ -26,19 +26,50 @@ class Varnishpurge_uriService extends Varnishpurge_BaseHelper
         craft()->varnishpurge_entry->saveEntry($entry);
     }
 
+    public function deleteURI(string $pageUri)
+    {
+        $uriHash = $this->hash($pageUri);
+
+        // Save URI record
+        $uri = $this->getURIByURIHash(
+            $uriHash
+        );
+
+        if (!$uri->isNewRecord) {
+            $uri->delete();
+        }
+    }
+
+    public function getURI($id)
+    {
+        return Varnishpurge_uriRecord::model()->findAllByPk($id);
+    }
+
     public function getURIByURIHash($uriHash = '')
     {
         if (empty($uriHash)) {
             throw new Exception('$uriHash cannot be blank.');
         }
 
-        if (($uri = Varnishpurge_uriRecord::model()->findByAttributes(array(
-              'uriHash' => $uriHash
-            ))) !== null) {
+        $uri = Varnishpurge_uriRecord::model()->findByAttributes(array(
+          'uriHash' => $uriHash
+        ));
+
+        if ($uri !== null) {
             return $uri;
         }
 
         return new Varnishpurge_uriRecord();
+    }
+
+    public function getAllURIsByEntryId(int $entryId)
+    {
+        return Varnishpurge_uriRecord::model()->with(array(
+            'entries' => array(
+                'select' => false,
+                'condition' => 'entryId = ' . $entryId
+            )
+        ))->findAll();
     }
 
     public function saveURI(

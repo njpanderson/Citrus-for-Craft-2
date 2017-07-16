@@ -29,8 +29,6 @@ class VarnishpurgeVariable extends Varnishpurge_BaseHelper
      */
     public function tag(array $criteria = array())
     {
-        //!TODO - Check for non-200 responses and ignore tag creation
-
         $criteria = array_merge(array(
             'entryId' => 0,
             'uri' => craft()->request->url,
@@ -40,12 +38,21 @@ class VarnishpurgeVariable extends Varnishpurge_BaseHelper
         $criteria['entryId'] = (int) $criteria['entryId'];
         $criteria['uriHash'] = $this->hash($criteria['uri']);
 
+        if ($criteria['entryId'] === 0) {
+            throw new Exception('Entry ID in varnishpurge.tag cannot be zero or empty');
+        }
+
         craft()->varnishpurge_uri->saveURIEntry(
             $criteria['uri'],
             $criteria['entryId']
         );
 
-        var_dump('tag', $criteria);
+        return '';
+    }
+
+    public function deleteTag()
+    {
+        craft()->varnishpurge_uri->deleteURI(craft()->request->url);
     }
 
 }

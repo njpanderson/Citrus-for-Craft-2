@@ -118,6 +118,15 @@ class VarnishpurgeService extends BaseApplicationComponent
             unset($relatedProducts);
         }
 
+        // Get URIs gathered from tags, if this is an entry
+        if ($element->getElementType() == ElementType::Entry) {
+            $tagUris = craft()->varnishpurge_uri->getAllURIsByEntryId($element->id);
+
+            foreach ($tagUris as $tagUri) {
+                $uris[] = $tagUri->uri;
+                $tagUri->delete();
+            }
+        }
 
         $uris = array_unique($uris);
 

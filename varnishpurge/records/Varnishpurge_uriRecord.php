@@ -29,12 +29,16 @@ class Varnishpurge_uriRecord extends BaseRecord
     public function defineRelations()
     {
         return array(
-            'entries' => array(
-                static::HAS_MANY,
-                'Varnishpurge_EntryRecord',
-                'uriId',
-                'onDelete' => static::CASCADE
-            ),
+            'entries' => array(static::HAS_MANY, 'Varnishpurge_EntryRecord', 'uriId'),
         );
+    }
+
+    public function afterDelete()
+    {
+        foreach($this->entries as $entry) {
+            $entry->delete();
+        }
+
+        return parent::afterDelete();
     }
 }

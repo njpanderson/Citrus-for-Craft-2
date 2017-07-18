@@ -66,10 +66,18 @@ class VarnishpurgePlugin extends BasePlugin
         return $this->_minVersion;
     }
 
+    public function hasCpSection()
+    {
+        return true;
+    }
 
     public function init()
     {
         parent::init();
+
+        if (craft()->request->isCpRequest()) {
+            craft()->templates->hook('varnishpurge.prepCpTemplate', array($this, 'prepCpTemplate'));
+        }
 
         if (craft()->varnishpurge->getSetting('purgeEnabled')) {
 
@@ -94,6 +102,21 @@ class VarnishpurgePlugin extends BasePlugin
     		    }
     		});
         }
+    }
+
+    public function registerCpRoutes()
+    {
+        return array(
+            'varnishpurge' => array('action' => 'Varnishpurge_Bindings/index'),
+            'varnishpurge/bindings' => array('action' => 'Varnishpurge_Bindings/index'),
+            'varnishpurge/bindings/section/(\d)' => array('action' => 'Varnishpurge_Bindings/section')
+        );
+    }
+
+    public function prepCpTemplate(&$context)
+    {
+        $context['subnav'] = array();
+        $context['subnav']['bindings'] = array('label' => 'Bindings', 'url' => 'varnishpurge/bindings');
     }
 
     public function addEntryActions()

@@ -1,0 +1,15 @@
+{% extends "_layouts/cp" %}
+{% hook 'varnishpurge.prepCpTemplate' %}
+
+{% import "_includes/forms" as forms %}
+
+{# {% includeCssResource "settingsexample/css/SettingsExample_Style.css" %} #}
+{# {% includeJsResource "settingsexample/js/SettingsExample_Script.js" %} #}
+
+{% set content %}
+<h2>Set section Purge/Ban bindings</h2>
+
+<p>Create section to URI or ban query maps.</p>
+
+<p>[list of sections]</p>
+{% endset %}

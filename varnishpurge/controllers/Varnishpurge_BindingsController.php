@@ -17,7 +17,7 @@ class Varnishpurge_BindingsController extends BaseController
     {
         $variables = array(
             'title' => 'Varnish Purge - Bindings',
-            'sections' => []
+            'sections' => craft()->varnishpurge_bindings->getSections()
         );
 
         return $this->renderTemplate('varnishpurge/bindings/index', $variables);

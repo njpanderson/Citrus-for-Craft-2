@@ -14,7 +14,7 @@ class m170721_145200_Varnishpurge_Bindings extends BaseMigration
         ), null, true);
 
         // Add indexes to craft_varnishpurge_bindings
-        craft()->db->createCommand()->createIndex('varnishpurge_bindings', 'sectionId,typeId', true);
+        craft()->db->createCommand()->createIndex('varnishpurge_bindings', 'sectionId,typeId');
 
         return true;
     }

@@ -24,7 +24,7 @@ class Varnishpurge_BindingsRecord extends BaseRecord
     public function defineIndexes()
     {
         return array(
-            array('columns' => array('sectionId', 'typeId'), 'unique' => true),
+            array('columns' => array('sectionId', 'typeId')),
         );
     }
 }

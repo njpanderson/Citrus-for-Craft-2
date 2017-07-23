@@ -29,6 +29,7 @@ class VarnishpurgeService extends BaseApplicationComponent
             $locale = $elements[0]->locale;
 
             $uris = array();
+            $bans = array();
 
             foreach ($elements as $element) {
                 $uris = array_merge($uris, $this->_getElementUris($element, $locale, $purgeRelated));
@@ -36,19 +37,35 @@ class VarnishpurgeService extends BaseApplicationComponent
                 if ($element->getElementType() == ElementType::Entry) {
                     $uris = array_merge($uris, $this->_getTagUris($element->id));
 
-                    $uris = array_merge($uris, $this->_getBindingURIs(
+                    $uris = array_merge($uris, $this->_getBindingQueries(
                         $element->attributes['sectionId'],
                         $element->attributes['typeId'],
                         Varnishpurge_BindingsRecord::TYPE_PURGE
+                    ));
+
+                    $bans = array_merge($bans, $this->_getBindingQueries(
+                        $element->attributes['sectionId'],
+                        $element->attributes['typeId'],
+                        Varnishpurge_BindingsRecord::TYPE_BAN
                     ));
                 }
             }
 
             $urls = $this->_generateUrls($uris, $locale);
             $urls = array_merge($urls, $this->_getMappedUrls($urls));
+            $urls = array_unique($urls);
 
             if (count($urls) > 0) {
-                $this->_makeTask('Varnishpurge_Purge', $urls, $locale);
+                $this->_makeTask('Varnishpurge_Purge', array(
+                    'urls' => $urls,
+                    'locale' => $locale
+                ));
+            }
+
+            if (count($bans) > 0) {
+                $this->_makeTask('Varnishpurge_Ban', array(
+                    'bans' => $bans
+                ));
             }
         }
     }
@@ -157,7 +174,7 @@ class VarnishpurgeService extends BaseApplicationComponent
     /**
      * Gets URIs from section/entryType bindings
      */
-    private function _getBindingURIs($sectionId, $typeId, $bindType = null)
+    private function _getBindingQueries($sectionId, $typeId, $bindType = null)
     {
         $uris = array();
         $bindings = craft()->varnishpurge_bindings->getBindings(
@@ -264,12 +281,10 @@ class VarnishpurgeService extends BaseApplicationComponent
      * @param $uris
      * @param $locale
      */
-    private function _makeTask($taskName, $urls, $locale)
+    private function _makeTask($taskName, $settings = array())
     {
-        $urls = array_unique($urls);
-
         VarnishpurgePlugin::log(
-            'Creating task (' . $taskName . ', ' . implode(',', $urls) . ', ' . $locale . ')',
+            'Creating task (' . $taskName . ')',
             LogLevel::Info,
             craft()->varnishpurge->getSetting('logAll')
         );
@@ -278,29 +293,42 @@ class VarnishpurgeService extends BaseApplicationComponent
         $task = craft()->tasks->getNextPendingTask($taskName);
 
         if ($task && is_array($task->settings)) {
-            $settings = $task->settings;
+            $original_settings = $task->settings;
 
-            if (!is_array($settings['urls'])) {
-                $settings['urls'] = array($settings['urls']);
+            switch ($taskName) {
+            case 'Varnishpurge_Purge':
+                // Ensure 'urls' setting is an array
+                if (!is_array($original_settings['urls'])) {
+                    $original_settings['urls'] = array($original_settings['urls']);
+                }
+
+                // Merge with existing URLs
+                $original_settings['urls'] = array_merge(
+                    $original_settings['urls'],
+                    $settings['urls']
+                );
+
+                // Make sure there aren't any duplicate paths
+                $original_settings['urls'] = array_unique($original_settings['urls']);
+                break;
+
+            case 'Varnishpurge_Ban':
+                // Merge with existing bans
+                $original_settings['bans'] = array_merge(
+                    $original_settings['bans'],
+                    $settings['bans']
+                );
+
+                // Make sure there aren't any duplicate bans
+                $original_settings['bans'] = array_unique($original_settings['bans']);
+                break;
             }
-
-            if (is_array($urls)) {
-                $settings['urls'] = array_merge($settings['urls'], $urls);
-            } else {
-                $settings['urls'][] = $urls;
-            }
-
-            // Make sure there aren't any duplicate paths
-            $settings['urls'] = array_unique($settings['urls']);
 
             // Set the new settings and save the task
-            $task->settings = $settings;
+            $task->settings = $original_settings;
             craft()->tasks->saveTask($task, false);
         } else {
-            craft()->tasks->createTask($taskName, null, array(
-              'urls' => $urls,
-              'locale' => $locale
-            ));
+            craft()->tasks->createTask($taskName, null, $settings);
         }
     }
 

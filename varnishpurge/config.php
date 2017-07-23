@@ -7,4 +7,5 @@ return array(
     'purgeRelated' => true,
     'logAll' => 0,
     'purgeUrlMap' => [],
+    'banQueryHeader' => 'Ban-Query-Full',
 );

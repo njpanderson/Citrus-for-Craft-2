@@ -25,7 +25,11 @@ class Varnishpurge_PurgeTask extends BaseTask
 
     public function runStep($step)
     {
-        VarnishpurgePlugin::log('Varnish purge task run step: ' . $step, LogLevel::Info, craft()->varnishpurge->getSetting('logAll'));
+        VarnishpurgePlugin::log(
+            'Varnish purge task run step: ' . $step,
+            LogLevel::Info,
+            craft()->varnishpurge->getSetting('logAll')
+        );
 
         $batch = \Guzzle\Batch\BatchBuilder::factory()
           ->transferRequests(20)

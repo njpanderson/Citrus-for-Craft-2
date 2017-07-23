@@ -36,16 +36,18 @@ class VarnishpurgeService extends BaseApplicationComponent
 
                 if ($element->getElementType() == ElementType::Entry) {
                     $uris = array_merge($uris, $this->_getTagUris($element->id));
+                    $elementSectionId = $element->section->id;
+                    $elementTypeId = $element->type->id;
 
                     $uris = array_merge($uris, $this->_getBindingQueries(
-                        $element->attributes['sectionId'],
-                        $element->attributes['typeId'],
+                        $elementSectionId,
+                        $elementTypeId,
                         Varnishpurge_BindingsRecord::TYPE_PURGE
                     ));
 
                     $bans = array_merge($bans, $this->_getBindingQueries(
-                        $element->attributes['sectionId'],
-                        $element->attributes['typeId'],
+                        $elementSectionId,
+                        $elementTypeId,
                         Varnishpurge_BindingsRecord::TYPE_BAN
                     ));
                 }

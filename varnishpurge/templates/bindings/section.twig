@@ -1,10 +1,8 @@
-{% extends "_layouts/cp" %}
-{% hook 'varnishpurge.prepCpTemplate' %}
+{% extends "varnishpurge/_layouts/cp" %}
+
+{% set selectedSubnavItem = "bindings" %}
 
 {% import "_includes/forms" as forms %}
-
-{# {% includeCssResource "settingsexample/css/SettingsExample_Style.css" %} #}
-{# {% includeJsResource "settingsexample/js/SettingsExample_Script.js" %} #}
 
 {% block saveButton %}
 	{% if section is defined %}

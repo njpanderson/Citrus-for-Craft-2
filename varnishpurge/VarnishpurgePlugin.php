@@ -109,7 +109,8 @@ class VarnishpurgePlugin extends BasePlugin
     public function registerCpRoutes()
     {
         return array(
-            'varnishpurge' => array('action' => 'Varnishpurge_Bindings/index'),
+            'varnishpurge' => array('action' => 'Varnishpurge/index'),
+            'varnishpurge/pages' => array('action' => 'Varnishpurge_Pages/index'),
             'varnishpurge/bindings' => array('action' => 'Varnishpurge_Bindings/index'),
             'varnishpurge/bindings/section' => array('action' => 'Varnishpurge_Bindings/section')
         );
@@ -118,6 +119,7 @@ class VarnishpurgePlugin extends BasePlugin
     public function prepCpTemplate(&$context)
     {
         $context['subnav'] = array();
+        $context['subnav']['pages'] = array('label' => 'Pages', 'url' => 'varnishpurge/pages');
         $context['subnav']['bindings'] = array('label' => 'Bindings', 'url' => 'varnishpurge/bindings');
     }
 

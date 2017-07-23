@@ -3,6 +3,7 @@ namespace Craft;
 
 class VarnishpurgeService extends BaseApplicationComponent
 {
+
     var $settings = array();
 
     /**
@@ -23,7 +24,6 @@ class VarnishpurgeService extends BaseApplicationComponent
     public function purgeElements($elements, $purgeRelated = true)
     {
         if (count($elements) > 0) {
-
             // Assume that we only want to purge elements in one locale.
             // May not be the case if other thirdparty plugins sends elements.
             $locale = $elements[0]->locale;
@@ -136,7 +136,6 @@ class VarnishpurgeService extends BaseApplicationComponent
         }
 
         return $uris;
-
     }
 
     /**
@@ -265,12 +264,15 @@ class VarnishpurgeService extends BaseApplicationComponent
      * @param $uris
      * @param $locale
      */
-
     private function _makeTask($taskName, $urls, $locale)
     {
         $urls = array_unique($urls);
 
-        VarnishpurgePlugin::log('Creating task (' . $taskName . ', ' . implode(',', $urls) . ', ' . $locale . ')', LogLevel::Info, craft()->varnishpurge->getSetting('logAll'));
+        VarnishpurgePlugin::log(
+            'Creating task (' . $taskName . ', ' . implode(',', $urls) . ', ' . $locale . ')',
+            LogLevel::Info,
+            craft()->varnishpurge->getSetting('logAll')
+        );
 
         // If there are any pending tasks, just append the paths to it
         $task = craft()->tasks->getNextPendingTask($taskName);
@@ -300,9 +302,7 @@ class VarnishpurgeService extends BaseApplicationComponent
               'locale' => $locale
             ));
         }
-
     }
-
 
     /**
      * Gets a plugin setting

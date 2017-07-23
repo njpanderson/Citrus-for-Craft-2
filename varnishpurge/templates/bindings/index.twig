@@ -23,12 +23,13 @@
 				<th>{{ 'Edit bindings'|t }}</th>
 			</tr>
 		</thead>
+
 		<tbody>
 		{% for section in sections %}
 			<tr>
 				<td>{{ section.craftSection.name }}</td>
 				<td>{{ section.bindings }}</td>
-				<td><a href="#">{{ 'Edit bindings'|t }}</a></td>
+				<td><a href="{{ url('varnishpurge/bindings/section/', { sectionId: section.craftSection.id }) }}">{{ 'Edit bindings'|t }}</a></td>
 			</tr>
 		{% endfor %}
 		</tbody>

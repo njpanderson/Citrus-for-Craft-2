@@ -4,7 +4,22 @@ namespace Craft;
 class Varnishpurge_BindingsService extends BaseApplicationComponent
 {
     /**
-     * Returns the current CMS sections with binding counts
+     * Returns the active BindingsRecord bindings for a section, grouped by type
+     */
+    public function getBindings(int $sectionId, int $typeId = 0) {
+        $attrs = [
+            'sectionId' => $sectionId
+        ];
+
+        if ($typeId !== 0) {
+            $attrs['typeId'] = $typeId;
+        }
+
+        return Varnishpurge_BindingsRecord::model()->findAllByAttributes($attrs);
+    }
+
+    /**
+     * Returns the current CMS sections with binding counts.
      */
     public function getSections()
     {
@@ -24,7 +39,7 @@ class Varnishpurge_BindingsService extends BaseApplicationComponent
     }
 
     /**
-     * Returns the binding counts, grouped by section
+     * Returns the binding counts, grouped by section.
      */
     public function getBindingCounts()
     {
@@ -42,5 +57,42 @@ class Varnishpurge_BindingsService extends BaseApplicationComponent
         }
 
         return $result;
+    }
+
+    /**
+     * Clears the current bindings for a section.
+     */
+    public function clearBindings(int $sectionId) {
+        Varnishpurge_BindingsRecord::model()->deleteAll(
+            'sectionId = ?',
+            [$sectionId]
+        );
+
+        return true;
+    }
+
+    /**
+     * (Re)sets the active bindings for a section.
+     */
+    public function setBindings(int $sectionId, array $data = array()) {
+        $success = true;
+
+        foreach ($data as $entryType => $bindings) {
+            foreach ($bindings as $binding) {
+                $record = new Varnishpurge_BindingsRecord;
+                $record->sectionId = $sectionId;
+                $record->typeId = $entryType;
+                $record->bindType = $binding['bindType'];
+                $record->query = $binding['query'];
+                $success = $record->save();
+
+                if (!$success) {
+                    // early return if a save failed
+                    return $success;
+                }
+            }
+        }
+
+        return $success;
     }
 }

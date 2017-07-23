@@ -111,7 +111,7 @@ class VarnishpurgePlugin extends BasePlugin
         return array(
             'varnishpurge' => array('action' => 'Varnishpurge_Bindings/index'),
             'varnishpurge/bindings' => array('action' => 'Varnishpurge_Bindings/index'),
-            'varnishpurge/bindings/section/(\d)' => array('action' => 'Varnishpurge_Bindings/section')
+            'varnishpurge/bindings/section' => array('action' => 'Varnishpurge_Bindings/section')
         );
     }
 

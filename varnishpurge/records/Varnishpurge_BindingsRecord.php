@@ -3,6 +3,9 @@ namespace Craft;
 
 class Varnishpurge_BindingsRecord extends BaseRecord
 {
+    const TYPE_PURGE = 'PURGE';
+    const TYPE_BAN = 'BAN';
+
     public function getTableName()
     {
         return 'varnishpurge_bindings';
@@ -15,7 +18,7 @@ class Varnishpurge_BindingsRecord extends BaseRecord
             'typeId' => AttributeType::Number,
             'bindType' => [
                 AttributeType::Enum,
-                'values' => 'PURGE,BAN'
+                'values' => self::TYPE_PURGE . ',' . self::TYPE_BAN
             ],
             'query' => AttributeType::String
         );

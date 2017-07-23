@@ -32,6 +32,16 @@ class VarnishpurgeService extends BaseApplicationComponent
 
             foreach ($elements as $element) {
                 $uris = array_merge($uris, $this->_getElementUris($element, $locale, $purgeRelated));
+
+                if ($element->getElementType() == ElementType::Entry) {
+                    $uris = array_merge($uris, $this->_getTagUris($element->id));
+
+                    $uris = array_merge($uris, $this->_getBindingURIs(
+                        $element->attributes['sectionId'],
+                        $element->attributes['typeId'],
+                        Varnishpurge_BindingsRecord::TYPE_PURGE
+                    ));
+                }
             }
 
             $urls = $this->_generateUrls($uris, $locale);
@@ -40,7 +50,6 @@ class VarnishpurgeService extends BaseApplicationComponent
             if (count($urls) > 0) {
                 $this->_makeTask('Varnishpurge_Purge', $urls, $locale);
             }
-
         }
     }
 
@@ -118,16 +127,6 @@ class VarnishpurgeService extends BaseApplicationComponent
             unset($relatedProducts);
         }
 
-        // Get URIs gathered from tags, if this is an entry
-        if ($element->getElementType() == ElementType::Entry) {
-            $tagUris = craft()->varnishpurge_uri->getAllURIsByEntryId($element->id);
-
-            foreach ($tagUris as $tagUri) {
-                $uris[] = $tagUri->uri;
-                $tagUri->delete();
-            }
-        }
-
         $uris = array_unique($uris);
 
         foreach (craft()->plugins->call('varnishPurgeTransformElementUris', [$element, $uris]) as $plugin => $pluginUris) {
@@ -140,6 +139,40 @@ class VarnishpurgeService extends BaseApplicationComponent
 
     }
 
+    /**
+     * Gets URIs from tags attached to the front-end
+     */
+    private function _getTagUris($elementId)
+    {
+        $uris = array();
+        $tagUris = craft()->varnishpurge_uri->getAllURIsByEntryId($elementId);
+
+        foreach ($tagUris as $tagUri) {
+            $uris[] = $tagUri->uri;
+            $tagUri->delete();
+        }
+
+        return $uris;
+    }
+
+    /**
+     * Gets URIs from section/entryType bindings
+     */
+    private function _getBindingURIs($sectionId, $typeId, $bindType = null)
+    {
+        $uris = array();
+        $bindings = craft()->varnishpurge_bindings->getBindings(
+            $sectionId,
+            $typeId,
+            $bindType
+        );
+
+        foreach ($bindings as $binding) {
+            $uris[] = $binding->query;
+        }
+
+        return $uris;
+    }
 
     /**
      * Gets elements of type $elementType related to $element in $locale

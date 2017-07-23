@@ -4,7 +4,7 @@ namespace Craft;
 class Varnishpurge_BindingsController extends BaseController
 {
 
-    const bindingsTablePrefix = 'bindingsType_';
+    const BINDINGS_TABLE_PREFIX = 'bindingsType_';
 
     /**
      * @var    bool|array Allows anonymous access to this controller's actions.
@@ -81,8 +81,8 @@ class Varnishpurge_BindingsController extends BaseController
         $saved = true;
 
         foreach (craft()->request->post as $key => $data) {
-            if (($pos = strrpos($key, self::bindingsTablePrefix)) !== false) {
-                $typeId = (int) str_replace(self::bindingsTablePrefix, '', $key);
+            if (($pos = strrpos($key, self::BINDINGS_TABLE_PREFIX)) !== false) {
+                $typeId = (int) str_replace(self::BINDINGS_TABLE_PREFIX, '', $key);
 
                 if ($typeId) {
                     foreach ($data as $values) {

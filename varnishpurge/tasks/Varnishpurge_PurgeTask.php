@@ -38,11 +38,16 @@ class Varnishpurge_PurgeTask extends BaseTask
 
         $client = new \Guzzle\Http\Client();
         $client->setDefaultOption('headers/Accept', '*/*');
+        $headers = array(
+            'Host' => craft()->varnishpurge->getSetting('varnishHostName')
+        );
+
+        VarnishpurgePlugin::log('Host: ' . $headers['Host']);
 
         foreach ($this->_urls[$step] as $url) {
             VarnishpurgePlugin::log('Adding url to purge: ' . $url, LogLevel::Info, craft()->varnishpurge->getSetting('logAll'));
 
-            $request = $client->createRequest('PURGE', $url);
+            $request = $client->createRequest('PURGE', $url, $headers);
             $batch->add($request);
         }
 

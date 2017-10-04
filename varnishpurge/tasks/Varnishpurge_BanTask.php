@@ -38,7 +38,9 @@ class Varnishpurge_BanTask extends BaseTask
         $client->setDefaultOption('headers/Accept', '*/*');
 
         $banQueryHeader = craft()->varnishpurge->getSetting('banQueryHeader');
-        $headers = array();
+        $headers = array(
+            'Host' => craft()->varnishpurge->getSetting('varnishHostName')
+        );
 
         foreach ($this->_bans[$step] as $query) {
             $banQuery =

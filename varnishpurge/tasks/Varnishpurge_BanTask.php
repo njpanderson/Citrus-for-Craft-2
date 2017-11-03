@@ -44,8 +44,8 @@ class Varnishpurge_BanTask extends BaseTask
 
         foreach ($this->_bans[$step] as $query) {
             $banQuery =
-                'obj.http.host == ' . craft()->request->hostName .
-                ' && obj.http.url ~ ' . $query;
+                'req.http.host == ' . craft()->request->hostName .
+                ' && req.http.url ~ ' . $query;
 
             // $headers[$banQueryHeader] = urlencode($banQuery);
             $headers[$banQueryHeader] = $banQuery;

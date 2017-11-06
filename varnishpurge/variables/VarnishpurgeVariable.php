@@ -1,12 +1,12 @@
 <?php
 namespace Craft;
 
-class VarnishpurgeVariable
+class VarnishpurgeVariable extends Varnishpurge_BaseHelper
 {
 
     /**
      * Gets the client IP, accounting for request being routed through Varnish (HTTP_X_FORWARDED_FOR header set)
-     * 
+     *
      * @return string
      */
     public function clientip()
@@ -22,5 +22,37 @@ class VarnishpurgeVariable
 
         return $ip;
     }
-    
+
+    /**
+     * Tags a single entryId as belonging to a URI for later purging
+     * @return void
+     */
+    public function tag(array $criteria = array())
+    {
+        $criteria = array_merge(array(
+            'entryId' => 0,
+            'uri' => craft()->request->url,
+            'uriHash' => null
+        ), $criteria);
+
+        $criteria['entryId'] = (int) $criteria['entryId'];
+        $criteria['uriHash'] = $this->hash($criteria['uri']);
+
+        if ($criteria['entryId'] === 0) {
+            throw new Exception('Entry ID in varnishpurge.tag cannot be zero or empty');
+        }
+
+        craft()->varnishpurge_uri->saveURIEntry(
+            $criteria['uri'],
+            $criteria['entryId']
+        );
+
+        return '';
+    }
+
+    public function deleteTag()
+    {
+        craft()->varnishpurge_uri->deleteURI(craft()->request->url);
+    }
+
 }

@@ -3,6 +3,7 @@ namespace Craft;
 
 class VarnishpurgeService extends BaseApplicationComponent
 {
+
     var $settings = array();
 
     /**
@@ -23,24 +24,51 @@ class VarnishpurgeService extends BaseApplicationComponent
     public function purgeElements($elements, $purgeRelated = true)
     {
         if (count($elements) > 0) {
-
             // Assume that we only want to purge elements in one locale.
             // May not be the case if other thirdparty plugins sends elements.
             $locale = $elements[0]->locale;
 
             $uris = array();
+            $bans = array();
 
             foreach ($elements as $element) {
                 $uris = array_merge($uris, $this->_getElementUris($element, $locale, $purgeRelated));
+
+                if ($element->getElementType() == ElementType::Entry) {
+                    $uris = array_merge($uris, $this->_getTagUris($element->id));
+                    $elementSectionId = $element->section->id;
+                    $elementTypeId = $element->type->id;
+
+                    $uris = array_merge($uris, $this->_getBindingQueries(
+                        $elementSectionId,
+                        $elementTypeId,
+                        Varnishpurge_BindingsRecord::TYPE_PURGE
+                    ));
+
+                    $bans = array_merge($bans, $this->_getBindingQueries(
+                        $elementSectionId,
+                        $elementTypeId,
+                        Varnishpurge_BindingsRecord::TYPE_BAN
+                    ));
+                }
             }
 
             $urls = $this->_generateUrls($uris, $locale);
             $urls = array_merge($urls, $this->_getMappedUrls($urls));
+            $urls = array_unique($urls);
 
             if (count($urls) > 0) {
-                $this->_makeTask('Varnishpurge_Purge', $urls, $locale);
+                $this->_makeTask('Varnishpurge_Purge', array(
+                    'urls' => $urls,
+                    'locale' => $locale
+                ));
             }
 
+            if (count($bans) > 0) {
+                $this->_makeTask('Varnishpurge_Ban', array(
+                    'bans' => $bans
+                ));
+            }
         }
     }
 
@@ -118,7 +146,6 @@ class VarnishpurgeService extends BaseApplicationComponent
             unset($relatedProducts);
         }
 
-
         $uris = array_unique($uris);
 
         foreach (craft()->plugins->call('varnishPurgeTransformElementUris', [$element, $uris]) as $plugin => $pluginUris) {
@@ -128,9 +155,42 @@ class VarnishpurgeService extends BaseApplicationComponent
         }
 
         return $uris;
-
     }
 
+    /**
+     * Gets URIs from tags attached to the front-end
+     */
+    private function _getTagUris($elementId)
+    {
+        $uris = array();
+        $tagUris = craft()->varnishpurge_uri->getAllURIsByEntryId($elementId);
+
+        foreach ($tagUris as $tagUri) {
+            $uris[] = $tagUri->uri;
+            $tagUri->delete();
+        }
+
+        return $uris;
+    }
+
+    /**
+     * Gets URIs from section/entryType bindings
+     */
+    private function _getBindingQueries($sectionId, $typeId, $bindType = null)
+    {
+        $uris = array();
+        $bindings = craft()->varnishpurge_bindings->getBindings(
+            $sectionId,
+            $typeId,
+            $bindType
+        );
+
+        foreach ($bindings as $binding) {
+            $uris[] = $binding->query;
+        }
+
+        return $uris;
+    }
 
     /**
      * Gets elements of type $elementType related to $element in $locale
@@ -223,44 +283,56 @@ class VarnishpurgeService extends BaseApplicationComponent
      * @param $uris
      * @param $locale
      */
-
-    private function _makeTask($taskName, $urls, $locale)
+    private function _makeTask($taskName, $settings = array())
     {
-        $urls = array_unique($urls);
-
-        VarnishpurgePlugin::log('Creating task (' . $taskName . ', ' . implode(',', $urls) . ', ' . $locale . ')', LogLevel::Info, craft()->varnishpurge->getSetting('logAll'));
+        VarnishpurgePlugin::log(
+            'Creating task (' . $taskName . ')',
+            LogLevel::Info,
+            craft()->varnishpurge->getSetting('logAll')
+        );
 
         // If there are any pending tasks, just append the paths to it
         $task = craft()->tasks->getNextPendingTask($taskName);
 
         if ($task && is_array($task->settings)) {
-            $settings = $task->settings;
+            $original_settings = $task->settings;
 
-            if (!is_array($settings['urls'])) {
-                $settings['urls'] = array($settings['urls']);
+            switch ($taskName) {
+            case 'Varnishpurge_Purge':
+                // Ensure 'urls' setting is an array
+                if (!is_array($original_settings['urls'])) {
+                    $original_settings['urls'] = array($original_settings['urls']);
+                }
+
+                // Merge with existing URLs
+                $original_settings['urls'] = array_merge(
+                    $original_settings['urls'],
+                    $settings['urls']
+                );
+
+                // Make sure there aren't any duplicate paths
+                $original_settings['urls'] = array_unique($original_settings['urls']);
+                break;
+
+            case 'Varnishpurge_Ban':
+                // Merge with existing bans
+                $original_settings['bans'] = array_merge(
+                    $original_settings['bans'],
+                    $settings['bans']
+                );
+
+                // Make sure there aren't any duplicate bans
+                $original_settings['bans'] = array_unique($original_settings['bans']);
+                break;
             }
-
-            if (is_array($urls)) {
-                $settings['urls'] = array_merge($settings['urls'], $urls);
-            } else {
-                $settings['urls'][] = $urls;
-            }
-
-            // Make sure there aren't any duplicate paths
-            $settings['urls'] = array_unique($settings['urls']);
 
             // Set the new settings and save the task
-            $task->settings = $settings;
+            $task->settings = $original_settings;
             craft()->tasks->saveTask($task, false);
         } else {
-            craft()->tasks->createTask($taskName, null, array(
-              'urls' => $urls,
-              'locale' => $locale
-            ));
+            craft()->tasks->createTask($taskName, null, $settings);
         }
-
     }
-
 
     /**
      * Gets a plugin setting

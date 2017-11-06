@@ -5,8 +5,8 @@ namespace Craft;
 class VarnishpurgePlugin extends BasePlugin
 {
 
-    protected $_version = '0.2.2',
-      $_schemaVersion = '1.0.0',
+    protected $_version = '0.3.0',
+      $_schemaVersion = '1.1.0',
       $_name = 'Varnish Purge',
       $_url = 'https://github.com/aelvan/VarnishPurge-Craft',
       $_releaseFeedUrl = 'https://raw.githubusercontent.com/aelvan/VarnishPurge-Craft/master/releases.json',
@@ -66,34 +66,61 @@ class VarnishpurgePlugin extends BasePlugin
         return $this->_minVersion;
     }
 
+    public function hasCpSection()
+    {
+        return true;
+    }
 
     public function init()
     {
         parent::init();
 
-        if (craft()->varnishpurge->getSetting('purgeEnabled')) {
+        if (craft()->request->isCpRequest()) {
+            craft()->templates->hook('varnishpurge.prepCpTemplate', array($this, 'prepCpTemplate'));
+        }
 
+        if (craft()->varnishpurge->getSetting('purgeEnabled')) {
             $purgeRelated = craft()->varnishpurge->getSetting('purgeRelated');
 
-            craft()->on('elements.onSaveElement', function (Event $event) use($purgeRelated) { // element saved
+            craft()->on('elements.onSaveElement', function (Event $event) use ($purgeRelated) {
+                // element saved
                 craft()->varnishpurge->purgeElement($event->params['element'], $purgeRelated);
             });
 
-            craft()->on('entries.onDeleteEntry', function (Event $event) use($purgeRelated) { //entry deleted
+            craft()->on('entries.onDeleteEntry', function (Event $event) use ($purgeRelated) {
+                //entry deleted
                 craft()->varnishpurge->purgeElement($event->params['entry'], $purgeRelated);
             });
 
-    		craft()->on('elements.onBeforePerformAction', function(Event $event) use($purgeRelated) { //entry deleted via element action
-    			$action = $event->params['action']->classHandle;
-    		    if ($action == 'Delete') {
-        		    $elements = $event->params['criteria']->find();
-    		        foreach ($elements as $element) {
-    		            if ($element->elementType !== 'Entry') { return; }
-    					craft()->varnishpurge->purgeElement($element, $purgeRelated);
-    		        }
-    		    }
-    		});
+            craft()->on('elements.onBeforePerformAction', function(Event $event) use ($purgeRelated) {
+                //entry deleted via element action
+                $action = $event->params['action']->classHandle;
+                if ($action == 'Delete') {
+                    $elements = $event->params['criteria']->find();
+                    foreach ($elements as $element) {
+                        if ($element->elementType !== 'Entry') { return; }
+                        craft()->varnishpurge->purgeElement($element, $purgeRelated);
+                    }
+                }
+            });
         }
+    }
+
+    public function registerCpRoutes()
+    {
+        return array(
+            'varnishpurge' => array('action' => 'Varnishpurge/index'),
+            'varnishpurge/pages' => array('action' => 'Varnishpurge_Pages/index'),
+            'varnishpurge/bindings' => array('action' => 'Varnishpurge_Bindings/index'),
+            'varnishpurge/bindings/section' => array('action' => 'Varnishpurge_Bindings/section')
+        );
+    }
+
+    public function prepCpTemplate(&$context)
+    {
+        $context['subnav'] = array();
+        $context['subnav']['pages'] = array('label' => 'Pages', 'url' => 'varnishpurge/pages');
+        $context['subnav']['bindings'] = array('label' => 'Bindings', 'url' => 'varnishpurge/bindings');
     }
 
     public function addEntryActions()

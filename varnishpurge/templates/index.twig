@@ -4,6 +4,45 @@
 
 {% import "_includes/forms" as forms %}
 
+{% block pageHeader %}
+	{{ parent() }}
+
+	<div class="dashboard">
+		<p>[dashboard goes here]</p>
+	</div>
+{% endblock %}
+
 {% set content %}
-	<p>[Dashboard &amp; On-demand Purging/Banning coming soon...]</p>
+	<div id="tab-purge">
+		<form id="frm-purge" class="purgeban">
+			<fieldset>
+				<div class="heading">
+					<label id="title-label" class="required" for="purge-uri">URI</label>
+				</div>
+				<span>{{ craft.config.get('varnishUrl', 'varnishpurge') }}</span>
+				<input class="text" type="text" id="purge-uri" name="query" value="" autofocus="" autocomplete="off" placeholder="uri/to/page">
+				<input type="hidden" name="purgeban_type" value="purge">
+				<input type="hidden" name="{{ craft.config.csrfTokenName }}" value="{{ craft.request.csrfToken }}">
+				<input type="submit" class="btn submit" value="Purge URI">
+			</fieldset>
+		</form>
+	</div>
+
+	<div id="tab-ban" class="hidden">
+		<form id="frm-ban" class="purgeban">
+			<fieldset>
+				<div class="heading">
+					<label id="title-label" class="required" for="ban-query">URI</label>
+				</div>
+				<input class="text" type="text" id="ban-query" name="query" value="" autofocus="" autocomplete="off" placeholder=".*">
+				<input type="hidden" name="purgeban_type" value="ban">
+				<input type="hidden" name="{{ craft.config.csrfTokenName }}" value="{{ craft.request.csrfToken }}">
+				<input type="submit" class="btn submit" value="Send Ban Query">
+			</fieldset>
+		</form>
+	</div>
+
+	<div id="purgeban-output">
+		<pre><code>Purge/ban output container</code></pre>
+	</div>
 {% endset %}

@@ -1,3 +1,19 @@
 #nav li a.sel {
 	background: rgba(255, 255, 255, 0.1);
 }
+
+form.purgeban input[name='query'] {
+	width: 50%;
+}
+
+#page-header {
+	flex-wrap: wrap;
+}
+
+.dashboard {
+	width: 100%;
+}
+
+#purgeban-output {
+	margin-top: 20px;
+}

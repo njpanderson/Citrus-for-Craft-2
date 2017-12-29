@@ -32,9 +32,17 @@ class Varnishpurge_PurgeTask extends BaseTask
         );
 
         $batch = \Guzzle\Batch\BatchBuilder::factory()
-          ->transferRequests(20)
-          ->bufferExceptions()
-          ->build();
+            ->transferRequests(20)
+            ->autoFlushAt(10)
+            ->notify(function(array $transferredItems) {
+                VarnishpurgePlugin::log(
+                    'Purged  '  . count($transferredItems) . ' item(s)',
+                    LogLevel::Info,
+                    craft()->varnishpurge->getSetting('logAll')
+                );
+            })
+            ->bufferExceptions()
+            ->build();
 
         $client = new \Guzzle\Http\Client();
         $client->setDefaultOption('headers/Accept', '*/*');

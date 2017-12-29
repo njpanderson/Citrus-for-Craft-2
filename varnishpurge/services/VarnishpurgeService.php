@@ -72,6 +72,24 @@ class VarnishpurgeService extends BaseApplicationComponent
         }
     }
 
+    public function purgeURI($uri)
+    {
+        $this->_makeTask('Varnishpurge_Purge', array(
+            'urls' => array($uri)
+        ));
+
+        return true;
+    }
+
+    public function banQuery($query)
+    {
+        $this->_makeTask('Varnishpurge_Ban', array(
+            'bans' => array($query)
+        ));
+
+        return true;
+    }
+
     /**
      * Get URIs to purge from $element in $locale.
      *

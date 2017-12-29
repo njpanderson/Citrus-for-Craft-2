@@ -6,6 +6,29 @@ form.purgeban input[name='query'] {
 	width: 50%;
 }
 
+form.purgeban .purgeban-query {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	margin: 0 -5px;
+}
+
+form.purgeban .purgeban-query > * {
+	margin: auto 5px;
+	flex: none;
+}
+
+form.purgeban .purgeban-query > input[name='query'] {
+	flex-shrink: 1;
+	flex-grow: 1;
+	flex-basis: 100px;
+}
+
+form.purgeban .prefix {
+	font-family: monospace;
+	color: rgb(160, 159, 159);
+}
+
 #page-header {
 	flex-wrap: wrap;
 }

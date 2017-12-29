@@ -19,12 +19,16 @@
 				<div class="heading">
 					<label id="title-label" class="required" for="purge-uri">URI</label>
 				</div>
-				<span>{{ craft.config.get('varnishUrl', 'varnishpurge') }}</span>
-				<input class="text" type="text" id="purge-uri" name="query" value="" autofocus="" autocomplete="off" placeholder="uri/to/page">
-				<input type="hidden" name="purgeban_type" value="purge">
-				<input type="hidden" name="{{ craft.config.csrfTokenName }}" value="{{ craft.request.csrfToken }}">
-				<input type="submit" class="btn submit" value="Purge URI">
+
+				<div class="purgeban-query">
+					<span class="prefix">{{ craft.config.get('varnishUrl', 'varnishpurge') }}</span>
+					<input class="text" type="text" id="purge-uri" name="query" value="" autofocus="" autocomplete="off" placeholder="uri/to/page">
+					<input type="submit" class="btn submit" value="Purge URI">
+				</div>
 			</fieldset>
+
+			<input type="hidden" name="purgeban_type" value="purge">
+			<input type="hidden" name="{{ craft.config.csrfTokenName }}" value="{{ craft.request.csrfToken }}">
 		</form>
 	</div>
 
@@ -32,13 +36,18 @@
 		<form id="frm-ban" class="purgeban">
 			<fieldset>
 				<div class="heading">
-					<label id="title-label" class="required" for="ban-query">URI</label>
+					<label id="title-label" class="required" for="ban-query">Query</label>
 				</div>
-				<input class="text" type="text" id="ban-query" name="query" value="" autofocus="" autocomplete="off" placeholder=".*">
-				<input type="hidden" name="purgeban_type" value="ban">
-				<input type="hidden" name="{{ craft.config.csrfTokenName }}" value="{{ craft.request.csrfToken }}">
-				<input type="submit" class="btn submit" value="Send Ban Query">
+
+				<div class="purgeban-query">
+					<span class="prefix">{{ craft.config.get('banPrefix', 'varnishpurge') }}</span>
+					<input class="text" type="text" id="ban-query" name="query" value="" autofocus="" autocomplete="off" placeholder=".*" class="">
+					<input type="submit" class="btn submit" value="Send Ban Query">
+				</div>
 			</fieldset>
+
+			<input type="hidden" name="purgeban_type" value="ban">
+			<input type="hidden" name="{{ craft.config.csrfTokenName }}" value="{{ craft.request.csrfToken }}">
 		</form>
 	</div>
 

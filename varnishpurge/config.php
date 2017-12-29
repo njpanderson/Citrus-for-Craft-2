@@ -9,5 +9,6 @@ return array(
     'logAll' => 0,
     'purgeUrlMap' => [],
     'bansSupported' => true,
+    'banPrefix' => 'req.http.host == ' . craft()->request->hostName . ' && req.url ~ ',
     'banQueryHeader' => 'Ban-Query-Full',
 );

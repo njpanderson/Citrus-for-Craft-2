@@ -1,0 +1,33 @@
+[
+    {
+        "name": "njpanderson/varnish-connect",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/njpanderson/varnish-connect.git",
+            "reference": "a838dc924ebab616950b201be51184a853b9d166"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/njpanderson/varnish-connect/zipball/a838dc924ebab616950b201be51184a853b9d166",
+            "reference": "a838dc924ebab616950b201be51184a853b9d166",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2017-12-30T18:34:18+00:00",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-4": {
+                "njpanderson\\VarnishConnect\\": "src"
+            }
+        },
+        "support": {
+            "source": "https://github.com/njpanderson/varnish-connect/tree/master",
+            "issues": "https://github.com/njpanderson/varnish-connect/issues"
+        }
+    }
+]

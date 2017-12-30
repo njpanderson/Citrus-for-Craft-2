@@ -1,0 +1,49 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "696a842d578d9f414d67d82349388791",
+    "packages": [
+        {
+            "name": "njpanderson/varnish-connect",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/njpanderson/varnish-connect.git",
+                "reference": "a838dc924ebab616950b201be51184a853b9d166"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/njpanderson/varnish-connect/zipball/a838dc924ebab616950b201be51184a853b9d166",
+                "reference": "a838dc924ebab616950b201be51184a853b9d166",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "njpanderson\\VarnishConnect\\": "src"
+                }
+            },
+            "support": {
+                "source": "https://github.com/njpanderson/varnish-connect/tree/master",
+                "issues": "https://github.com/njpanderson/varnish-connect/issues"
+            },
+            "time": "2017-12-30T18:34:18+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "njpanderson/varnish-connect": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}

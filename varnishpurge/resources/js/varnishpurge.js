@@ -20,6 +20,8 @@
 	PurgeBan.prototype.submit = function(event) {
 		event.preventDefault();
 
+		this.$output.html('');
+
 		$.post(this.$form.attr('action'), this.$form.serialize())
 			.then($.proxy(function(response) {
 				// Update output

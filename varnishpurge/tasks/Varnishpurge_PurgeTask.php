@@ -1,7 +1,6 @@
 <?php
 namespace Craft;
 
-
 class Varnishpurge_PurgeTask extends BaseTask
 {
     private $_urls;

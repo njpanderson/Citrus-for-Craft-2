@@ -1,80 +1,89 @@
 <?php
 namespace Craft;
 
-
 class Varnishpurge_BanTask extends BaseTask
 {
-    private $_bans;
+	private $_bans;
 
-    public function getDescription()
-    {
-        return Craft::t('Banning from Varnish cache');
-    }
+	public function getDescription()
+	{
+		return Craft::t('Banning from Varnish cache');
+	}
 
-    public function getTotalSteps()
-    {
-        $bans = $this->getSettings()->bans;
+	public function getTotalSteps()
+	{
+		$bans = $this->getSettings()->bans;
 
-        $this->_bans = array();
-        $this->_bans = array_chunk($bans, 20);
+		$this->_bans = array();
+		$this->_bans = array_chunk($bans, 20);
 
-        return count($this->_bans);
-    }
+		return count($this->_bans);
+	}
 
-    public function runStep($step)
-    {
-        VarnishpurgePlugin::log(
-            'Varnish ban task run step: ' . $step,
-            LogLevel::Info,
-            craft()->varnishpurge->getSetting('logAll')
-        );
+	public function runStep($step)
+	{
+		VarnishpurgePlugin::log(
+			'Varnish ban task run step: ' . $step,
+			LogLevel::Info,
+			craft()->varnishpurge->getSetting('logAll')
+		);
 
-        $batch = \Guzzle\Batch\BatchBuilder::factory()
-          ->transferRequests(20)
-          ->bufferExceptions()
-          ->build();
+		$batch = \Guzzle\Batch\BatchBuilder::factory()
+			->transferRequests(20)
+			->notify(function(array $transferredItems) {
+                if (count($transferredItems) > 0) {
+                    VarnishpurgePlugin::log(
+                        'Purged  '  . count($transferredItems) . ' item(s)',
+                        LogLevel::Info,
+                        craft()->varnishpurge->getSetting('logAll')
+                    );
+                }
+            })
+			->autoFlushAt(10)
+			->bufferExceptions()
+			->build();
 
-        $client = new \Guzzle\Http\Client();
-        $client->setDefaultOption('headers/Accept', '*/*');
+		$client = new \Guzzle\Http\Client();
+		$client->setDefaultOption('headers/Accept', '*/*');
 
-        $banQueryHeader = craft()->varnishpurge->getSetting('banQueryHeader');
-        $headers = array(
-            'Host' => craft()->varnishpurge->getSetting('varnishHostName')
-        );
+		$banQueryHeader = craft()->varnishpurge->getSetting('banQueryHeader');
+		$headers = array(
+			'Host' => craft()->varnishpurge->getSetting('varnishHostName')
+		);
 
-        foreach ($this->_bans[$step] as $query) {
-            $banQuery = craft()->varnishpurge->getSetting('banPrefix') . $query;
+		foreach ($this->_bans[$step] as $query) {
+			$banQuery = craft()->varnishpurge->getSetting('banPrefix') . $query;
 
-            // $headers[$banQueryHeader] = urlencode($banQuery);
-            $headers[$banQueryHeader] = $banQuery;
+			// $headers[$banQueryHeader] = urlencode($banQuery);
+			$headers[$banQueryHeader] = $banQuery;
 
-            VarnishpurgePlugin::log(
-                'Adding query to ban: ' . $banQuery,
-                LogLevel::Info,
-                craft()->varnishpurge->getSetting('logAll')
-            );
+			VarnishpurgePlugin::log(
+				'Adding query to ban: ' . $banQuery,
+				LogLevel::Info,
+				craft()->varnishpurge->getSetting('logAll')
+			);
 
-            // Ban requests always go to / but with a header determining the ban query
-            $request = $client->createRequest('BAN', craft()->request->hostInfo . '/', $headers);
-            $batch->add($request);
-        }
+			// Ban requests always go to / but with a header determining the ban query
+			$request = $client->createRequest('BAN', craft()->request->hostInfo . '/', $headers);
+			$batch->add($request);
+		}
 
-        $requests = $batch->flush();
+		$requests = $batch->flush();
 
-        foreach ($batch->getExceptions() as $e) {
-            VarnishpurgePlugin::log('An exception occurred: ' . $e->getMessage(), LogLevel::Error);
-        }
+		foreach ($batch->getExceptions() as $e) {
+			VarnishpurgePlugin::log('An exception occurred: ' . $e->getMessage(), LogLevel::Error);
+		}
 
-        $batch->clearExceptions();
+		$batch->clearExceptions();
 
-        return true;
-    }
+		return true;
+	}
 
-    protected function defineSettings()
-    {
-        return array(
-          'bans' => AttributeType::Mixed
-        );
-    }
+	protected function defineSettings()
+	{
+		return array(
+		  'bans' => AttributeType::Mixed
+		);
+	}
 
 }

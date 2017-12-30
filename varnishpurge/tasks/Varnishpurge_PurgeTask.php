@@ -35,11 +35,13 @@ class Varnishpurge_PurgeTask extends BaseTask
             ->transferRequests(20)
             ->autoFlushAt(10)
             ->notify(function(array $transferredItems) {
-                VarnishpurgePlugin::log(
-                    'Purged  '  . count($transferredItems) . ' item(s)',
-                    LogLevel::Info,
-                    craft()->varnishpurge->getSetting('logAll')
-                );
+                if (count($transferredItems) > 0) {
+                    VarnishpurgePlugin::log(
+                        'Purged  '  . count($transferredItems) . ' item(s)',
+                        LogLevel::Info,
+                        craft()->varnishpurge->getSetting('logAll')
+                    );
+                }
             })
             ->bufferExceptions()
             ->build();
@@ -50,10 +52,11 @@ class Varnishpurge_PurgeTask extends BaseTask
             'Host' => craft()->varnishpurge->getSetting('varnishHostName')
         );
 
-        VarnishpurgePlugin::log('Host: ' . $headers['Host']);
-
         foreach ($this->_urls[$step] as $url) {
-            VarnishpurgePlugin::log('Adding url to purge: ' . $url, LogLevel::Info, craft()->varnishpurge->getSetting('logAll'));
+            VarnishpurgePlugin::log(
+                'Adding url to purge: ' . $url, LogLevel::Info,
+                craft()->varnishpurge->getSetting('logAll')
+            );
 
             $request = $client->createRequest('PURGE', $url, $headers);
             $batch->add($request);
@@ -62,7 +65,10 @@ class Varnishpurge_PurgeTask extends BaseTask
         $requests = $batch->flush();
 
         foreach ($batch->getExceptions() as $e) {
-            VarnishpurgePlugin::log('An exception occurred: ' . $e->getMessage(), LogLevel::Error);
+            VarnishpurgePlugin::log(
+                $e->getMessage(),
+                LogLevel::Error
+            );
         }
 
         $batch->clearExceptions();

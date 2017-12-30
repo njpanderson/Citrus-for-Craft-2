@@ -7,7 +7,7 @@
 
 	VarnishPurge.prototype.init = function() {
 		$('form.purgeban').each(function() {
-			new PurgeBan(this, $('.purgeban-output'));
+			new PurgeBan(this, $('#purgeban-output .output'));
 		});
 	}
 
@@ -22,7 +22,15 @@
 
 		$.post(this.$form.attr('action'), this.$form.serialize())
 			.then($.proxy(function(response) {
-				this.$output.html(response.message);
+				// Update output
+				this.$output.html(
+					response.query + '\n\n' +
+					response.message
+				);
+
+				// Update CSRF token
+				this.$form.find('input[name=\'' + response.CSRF.name + '\']')
+					.val(response.CSRF.value);
 			}, this));
 	}
 

@@ -52,13 +52,11 @@ class VarnishpurgeController extends BaseController
 		}
 
 		echo json_encode(array(
-			'response' => array(
-				'query' => $query,
-				'message' => (
-					$response === true ?
-					ucfirst($type . ' query queued.') :
-					ucfirst($type . ' query failed.')
-				)
+			'query' => $query,
+			'message' => (
+				$response === true ?
+				ucfirst($type . ' query queued.') :
+				ucfirst($type . ' query failed.')
 			),
 			'CSRF' => array(
 				'name' => craft()->config->get('csrfTokenName'),

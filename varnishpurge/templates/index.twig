@@ -52,7 +52,8 @@
 				</div>
 
 				<div class="purgeban-query">
-					<span class="prefix">{{ craft.config.get('banPrefix', 'varnishpurge') }}</span>
+					<span class="prefix" id="ban-prefix"><span class="inner">{{ craft.config.get('banPrefix', 'varnishpurge') }}</span></span>
+					<a href="#" data-prefix-reveal="ban-prefix" class="prefix-reveal">&hellip;</a>
 					<input class="text" type="text" id="ban-query" name="query" value="" autofocus="" autocomplete="off" placeholder=".*" class="">
 					<input type="submit" class="btn submit" value="Send Ban Query">
 				</div>

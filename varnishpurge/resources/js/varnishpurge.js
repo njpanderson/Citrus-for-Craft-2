@@ -5,9 +5,14 @@
 		this.init();
 	}
 
-	VarnishPurge.prototype.init = function() {
-		$('form.purgeban').each(function() {
+	VarnishPurge.prototype.init = function () {
+		$('form.purgeban').each(function () {
 			new PurgeBan(this, $('#purgeban-output .output'));
+		});
+
+		$('.prefix-reveal[data-prefix-reveal]').each(function () {
+			var $this = $(this);
+			new PrefixReveal($this, $('#' + $this.data('prefix-reveal')));
 		});
 
 		new Modals();
@@ -79,6 +84,13 @@
 		if (this.modals[id]) {
 			this.modals[id].modal.hide();
 		}
+	}
+
+	PrefixReveal = function($trigger, $target) {
+		$trigger.click(function(event) {
+			event.preventDefault();
+			$target.toggleClass('revealed');
+		});
 	}
 
 	new VarnishPurge();

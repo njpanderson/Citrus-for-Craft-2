@@ -29,6 +29,22 @@ form.purgeban .prefix {
 	color: rgb(160, 159, 159);
 }
 
+#frm-ban .prefix .inner {
+	transition: all .2s ease;
+	display: block;
+	overflow: hidden;
+	max-width: 100px;
+	white-space: nowrap;
+}
+
+#frm-ban .prefix.revealed .inner {
+	max-width: 100%;
+}
+
+.prefix-reveal {
+	color: rgb(85, 85, 85);
+}
+
 #page-header {
 	flex-wrap: wrap;
 }

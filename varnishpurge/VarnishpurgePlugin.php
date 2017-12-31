@@ -120,7 +120,7 @@ class VarnishpurgePlugin extends BasePlugin
     public function prepCpTemplate(&$context)
     {
         $context['subnav'] = array();
-        $context['subnav']['pages'] = array('label' => 'Pages', 'url' => 'varnishpurge/pages');
+        // $context['subnav']['pages'] = array('label' => 'Pages', 'url' => 'varnishpurge/pages');
         $context['subnav']['bindings'] = array('label' => 'Bindings', 'url' => 'varnishpurge/bindings');
     }
 

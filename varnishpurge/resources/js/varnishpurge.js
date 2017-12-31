@@ -1,5 +1,5 @@
 (function($, undefined) {
-	var VarnishPurge, PurgeBan,
+	var VarnishPurge, PurgeBan, Modals;
 
 	VarnishPurge = function() {
 		this.init();
@@ -9,6 +9,8 @@
 		$('form.purgeban').each(function() {
 			new PurgeBan(this, $('#purgeban-output .output'));
 		});
+
+		new Modals();
 	}
 
 	PurgeBan = function(form, $output) {
@@ -34,6 +36,51 @@
 				this.$form.find('input[name=\'' + response.CSRF.name + '\']')
 					.val(response.CSRF.value);
 			}, this));
+	}
+
+	Modals = function () {
+		var cls = this;
+
+		this.modals = {};
+
+		// Set up cancel buttons
+		$('[data-form-cancel]').click($.proxy(function (event) {
+			event.preventDefault();
+			this.close($(event.target).closest('.modal'));
+		}, this));
+
+		// Set up trigger buttons
+		$('[data-modal-trigger]').click($.proxy(function(event) {
+			var id = $(event.target).data('modal-trigger'),
+				$element = $('#' + id);
+
+			event.preventDefault();
+
+			if ($element.length) {
+				if (!this.modals[id]) {
+					this.modals[id] = {
+						$element: $element,
+						modal: new Garnish.Modal($element)
+					};
+				} else {
+					this.open(id);
+				}
+			}
+		}, this));
+	}
+
+	Modals.prototype.open = function (id) {
+		if (this.modals[id]) {
+			this.modals[id].modal.show();
+		}
+	}
+
+	Modals.prototype.close = function($modal) {
+		var id = $modal.attr('id');
+
+		if (this.modals[id]) {
+			this.modals[id].modal.hide();
+		}
 	}
 
 	new VarnishPurge();

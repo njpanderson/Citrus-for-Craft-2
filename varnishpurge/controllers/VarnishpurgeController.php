@@ -61,18 +61,25 @@ class VarnishpurgeController extends BaseController
 			$response = craft()->varnishpurge->purgeURI($query);
 		}
 
-		echo json_encode(array(
-			'query' => $query,
-			'message' => (
-				$response === true ?
-				ucfirst($type . ' query queued.') :
-				ucfirst($type . ' query failed.')
-			),
-			'CSRF' => array(
-				'name' => craft()->config->get('csrfTokenName'),
-				'value' => craft()->request->getCsrfToken()
-			)
-		));
+		if (craft()->request->isAjaxRequest) {
+			echo json_encode(array(
+				'query' => $query,
+				'message' => (
+					$response === true ?
+					ucfirst($type . ' query queued.') :
+					ucfirst($type . ' query failed.')
+				),
+				'CSRF' => array(
+					'name' => craft()->config->get('csrfTokenName'),
+					'value' => craft()->request->getCsrfToken()
+				)
+			));
+		} else {
+			$userSessionService = craft()->userSession;
+			$userSessionService->setNotice(Craft::t('Cache cleared.'));
+
+			$this->redirect('varnishpurge');
+		}
 	}
 
 	private function addVarnishAdminData(&$variables)

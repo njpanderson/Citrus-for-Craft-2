@@ -39,8 +39,6 @@
 	}
 
 	Modals = function () {
-		var cls = this;
-
 		this.modals = {};
 
 		// Set up cancel buttons

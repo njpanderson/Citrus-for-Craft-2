@@ -1,9 +1,12 @@
 <?php
 namespace Craft;
 
+use \njpanderson\VarnishConnect;
+
 class Varnishpurge_BanTask extends BaseTask
 {
 	private $_bans;
+	private $_socket;
 
 	public function getDescription()
 	{
@@ -22,12 +25,25 @@ class Varnishpurge_BanTask extends BaseTask
 
 	public function runStep($step)
 	{
+		require_once __DIR__ . '/../vendor/autoload.php';
+
 		VarnishpurgePlugin::log(
 			'Varnish ban task run step: ' . $step,
 			LogLevel::Info,
 			craft()->varnishpurge->getSetting('logAll')
 		);
 
+		if (craft()->varnishpurge->canDoAdminBans()) {
+			$this->sendAdmin($this->_bans[$step]);
+		} else {
+			$this->sendHTTP($this->_bans[$step]);
+		}
+
+		return true;
+	}
+
+	private function sendHTTP($bans)
+	{
 		$batch = \Guzzle\Batch\BatchBuilder::factory()
 			->transferRequests(20)
 			->notify(function(array $transferredItems) {
@@ -51,8 +67,8 @@ class Varnishpurge_BanTask extends BaseTask
 			'Host' => craft()->varnishpurge->getSetting('varnishHostName')
 		);
 
-		foreach ($this->_bans[$step] as $query) {
-			$banQuery = craft()->varnishpurge->getSetting('banPrefix') . $query;
+		foreach ($bans as $query) {
+			$banQuery = $this->prefixBan($query);
 
 			// $headers[$banQueryHeader] = urlencode($banQuery);
 			$headers[$banQueryHeader] = $banQuery;
@@ -71,12 +87,43 @@ class Varnishpurge_BanTask extends BaseTask
 		$requests = $batch->flush();
 
 		foreach ($batch->getExceptions() as $e) {
-			VarnishpurgePlugin::log('An exception occurred: ' . $e->getMessage(), LogLevel::Error);
+			VarnishpurgePlugin::log($e->getMessage(), LogLevel::Error);
 		}
 
 		$batch->clearExceptions();
+	}
 
-		return true;
+	private function sendAdmin($bans) {
+		try {
+			$this->_socket = new VarnishConnect\Socket(
+				craft()->varnishpurge->getSetting('adminIP'),
+				craft()->varnishpurge->getSetting('adminPort'),
+				craft()->varnishpurge->getSetting('adminSecret')
+			);
+
+			$this->_socket->connect();
+
+			foreach ($bans as $query) {
+				$banQuery = $this->prefixBan($query);
+
+				VarnishpurgePlugin::log(
+					'Adding query to ban: ' . $banQuery,
+					LogLevel::Info,
+					craft()->varnishpurge->getSetting('logAll')
+				);
+
+				$result = $this->_socket->addBan($banQuery);
+
+				if ($result !== true) {
+					VarnishpurgePlugin::log('Ban error: ' . $result, LogLevel::Error);
+				}
+			}
+		} catch(\Exception $e) {
+			VarnishpurgePlugin::log(
+				$e->getMessage(),
+				LogLevel::Error
+			);
+		}
 	}
 
 	protected function defineSettings()
@@ -84,6 +131,10 @@ class Varnishpurge_BanTask extends BaseTask
 		return array(
 		  'bans' => AttributeType::Mixed
 		);
+	}
+
+	private function prefixBan($query) {
+		return craft()->varnishpurge->getSetting('banPrefix') . $query;
 	}
 
 }

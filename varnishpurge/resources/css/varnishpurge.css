@@ -35,8 +35,23 @@ form.purgeban .prefix {
 
 .dashboard {
 	width: 100%;
+	margin: 20px 0;
+	border-top: 1px solid #eee;
+	padding-top: 20px;
 }
 
 #purgeban-output {
-	margin-top: 20px;
+	margin: 20px 0;
+	padding: 10px;
+	border: 1px inset #eee;
+	background-color: #eee;
+}
+
+.instructions {
+	margin: 10px 0;
+	color: rgb(119, 119, 119);
+}
+
+.instructions b {
+	color: #29323d;
 }

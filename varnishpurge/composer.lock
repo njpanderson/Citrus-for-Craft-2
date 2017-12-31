@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/njpanderson/varnish-connect.git",
-                "reference": "a838dc924ebab616950b201be51184a853b9d166"
+                "reference": "524d326e1c2d180e270d906ab0d1523deac820b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/njpanderson/varnish-connect/zipball/a838dc924ebab616950b201be51184a853b9d166",
-                "reference": "a838dc924ebab616950b201be51184a853b9d166",
+                "url": "https://api.github.com/repos/njpanderson/varnish-connect/zipball/524d326e1c2d180e270d906ab0d1523deac820b4",
+                "reference": "524d326e1c2d180e270d906ab0d1523deac820b4",
                 "shasum": ""
             },
             "require": {
@@ -33,7 +33,7 @@
                 "source": "https://github.com/njpanderson/varnish-connect/tree/master",
                 "issues": "https://github.com/njpanderson/varnish-connect/issues"
             },
-            "time": "2017-12-30T18:34:18+00:00"
+            "time": "2017-12-31T09:07:21+00:00"
         }
     ],
     "packages-dev": [],

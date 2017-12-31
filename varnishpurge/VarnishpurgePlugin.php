@@ -1,5 +1,4 @@
 <?php
-
 namespace Craft;
 
 class VarnishpurgePlugin extends BasePlugin
@@ -74,6 +73,8 @@ class VarnishpurgePlugin extends BasePlugin
     public function init()
     {
         parent::init();
+
+        require __DIR__ . '/vendor/autoload.php';
 
         if (craft()->request->isCpRequest()) {
             craft()->templates->hook('varnishpurge.prepCpTemplate', array($this, 'prepCpTemplate'));

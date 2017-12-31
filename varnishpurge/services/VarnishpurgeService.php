@@ -364,4 +364,11 @@ class VarnishpurgeService extends BaseApplicationComponent
         return craft()->config->get($name, 'varnishpurge');
     }
 
+    public function canDoAdminBans()
+    {
+        return !empty(craft()->varnishpurge->getSetting('adminIP')) &&
+			!empty(craft()->varnishpurge->getSetting('adminPort')) &&
+			!empty(craft()->varnishpurge->getSetting('adminSecret'));
+    }
+
 }

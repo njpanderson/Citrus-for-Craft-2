@@ -113,7 +113,8 @@ class VarnishpurgePlugin extends BasePlugin
             'varnishpurge' => array('action' => 'Varnishpurge/index'),
             'varnishpurge/pages' => array('action' => 'Varnishpurge_Pages/index'),
             'varnishpurge/bindings' => array('action' => 'Varnishpurge_Bindings/index'),
-            'varnishpurge/bindings/section' => array('action' => 'Varnishpurge_Bindings/section')
+            'varnishpurge/bindings/section' => array('action' => 'Varnishpurge_Bindings/section'),
+            'varnishpurge/test/purge' => array('action' => 'Varnishpurge_Purge/test')
         );
     }
 
@@ -156,6 +157,24 @@ class VarnishpurgePlugin extends BasePlugin
         }
 
         return $actions;
+    }
+
+    public static function log(
+        $message,
+        $level = LogLevel::Info,
+        $override = false,
+        $debug = false
+    ) {
+        if ($debug) {
+            // Also write to screen
+            if ($level === LogLevel::Error) {
+                echo '<span style="color: red; font-weight: bold;">' . $message . "</span><br/>\n";
+            } else {
+                echo $message . "<br/>\n";
+            }
+        }
+
+        parent::log($message, $level, $override);
     }
 
 }

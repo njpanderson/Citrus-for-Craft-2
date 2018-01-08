@@ -5,6 +5,7 @@ class Varnishpurge_PurgeTask extends BaseTask
 {
     private $_urls;
     private $_locale;
+    private $_debug;
 
     public function getDescription()
     {
@@ -15,6 +16,7 @@ class Varnishpurge_PurgeTask extends BaseTask
     {
         $urls = $this->getSettings()->urls;
         $this->_locale = $this->getSettings()->locale;
+        $this->_debug = $this->getSettings()->debug;
 
         $this->_urls = array();
         $this->_urls = array_chunk($urls, 20);
@@ -27,7 +29,8 @@ class Varnishpurge_PurgeTask extends BaseTask
         VarnishpurgePlugin::log(
             'Varnish purge task run step: ' . $step,
             LogLevel::Info,
-            craft()->varnishpurge->getSetting('logAll')
+            craft()->varnishpurge->getSetting('logAll'),
+            $this->_debug
         );
 
         $batch = \Guzzle\Batch\BatchBuilder::factory()
@@ -38,7 +41,8 @@ class Varnishpurge_PurgeTask extends BaseTask
                     VarnishpurgePlugin::log(
                         'Purged  '  . count($transferredItems) . ' item(s)',
                         LogLevel::Info,
-                        craft()->varnishpurge->getSetting('logAll')
+                        craft()->varnishpurge->getSetting('logAll'),
+                        $this->_debug
                     );
                 }
             })
@@ -53,8 +57,10 @@ class Varnishpurge_PurgeTask extends BaseTask
 
         foreach ($this->_urls[$step] as $url) {
             VarnishpurgePlugin::log(
-                'Adding url to purge: ' . $url, LogLevel::Info,
-                craft()->varnishpurge->getSetting('logAll')
+                'Adding url to purge: ' . $url,
+                LogLevel::Info,
+                craft()->varnishpurge->getSetting('logAll'),
+                $this->_debug
             );
 
             $request = $client->createRequest('PURGE', $url, $headers);
@@ -66,7 +72,9 @@ class Varnishpurge_PurgeTask extends BaseTask
         foreach ($batch->getExceptions() as $e) {
             VarnishpurgePlugin::log(
                 $e->getMessage(),
-                LogLevel::Error
+                LogLevel::Error,
+                true,
+                $this->_debug
             );
         }
 
@@ -79,7 +87,8 @@ class Varnishpurge_PurgeTask extends BaseTask
     {
         return array(
           'urls' => AttributeType::Mixed,
-          'locale' => AttributeType::String
+          'locale' => AttributeType::String,
+          'debug' => AttributeType::Bool,
         );
     }
 

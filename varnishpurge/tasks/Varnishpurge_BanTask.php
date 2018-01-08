@@ -39,6 +39,9 @@ class Varnishpurge_BanTask extends BaseTask
 			$this->sendHTTP($this->_bans[$step]);
 		}
 
+		// Sleep for .1 seconds
+		usleep(100000);
+
 		return true;
 	}
 

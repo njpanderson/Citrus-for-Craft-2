@@ -1,8 +1,9 @@
 <?php
 namespace Craft;
 
-class VarnishpurgeVariable extends Varnishpurge_BaseHelper
+class VarnishpurgeVariable extends BaseApplicationComponent
 {
+    use Varnishpurge_BaseHelper;
 
     /**
      * Gets the client IP, accounting for request being routed through Varnish (HTTP_X_FORWARDED_FOR header set)

@@ -1,8 +1,10 @@
 <?php
 namespace Craft;
 
-class Varnishpurge_uriService extends Varnishpurge_BaseHelper
+class Varnishpurge_uriService extends BaseApplicationComponent
 {
+    use Varnishpurge_BaseHelper;
+
     public function saveURIEntry(string $pageUri, int $entryId)
     {
         $uriHash = $this->hash($pageUri);

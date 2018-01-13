@@ -4,15 +4,15 @@ namespace Craft;
 class VarnishpurgePlugin extends BasePlugin
 {
 
-    protected $_version = '0.3.0',
-      $_schemaVersion = '1.1.0',
+    protected $_version = '0.4.0',
+      $_schemaVersion = '1.2.0',
       $_name = 'Varnish Purge',
-      $_url = 'https://github.com/aelvan/VarnishPurge-Craft',
-      $_releaseFeedUrl = 'https://raw.githubusercontent.com/aelvan/VarnishPurge-Craft/master/releases.json',
-      $_documentationUrl = 'https://github.com/aelvan/VarnishPurge-Craft/blob/master/README.md',
-      $_description = 'Purge that Varnish cache!',
-      $_developer = 'André Elvan',
-      $_developerUrl = 'http://vaersaagod.no/',
+      $_url = 'https://github.com/njpanderson/VarnishPurge-Craft',
+      $_releaseFeedUrl = 'https://raw.githubusercontent.com/njpanderson/VarnishPurge-Craft/master/releases.json',
+      $_documentationUrl = 'https://github.com/njpanderson/VarnishPurge-Craft/blob/master/README.md',
+      $_description = 'Varnish cache purging/management plugin',
+      $_developer = 'Neil Anderson',
+      $_developerUrl = 'http://neilinscotland.net/',
       $_minVersion = '2.4';
 
     public function getName()

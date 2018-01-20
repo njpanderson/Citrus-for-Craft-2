@@ -15,6 +15,10 @@ class VarnishpurgePlugin extends BasePlugin
       $_developerUrl = 'http://neilinscotland.net/',
       $_minVersion = '2.4';
 
+    const URI_TAG = 0;
+    const URI_ELEMENT = 1;
+    const URI_BINDING = 2;
+
     public function getName()
     {
         return Craft::t($this->_name);
@@ -114,7 +118,8 @@ class VarnishpurgePlugin extends BasePlugin
             'varnishpurge/pages' => array('action' => 'Varnishpurge_Pages/index'),
             'varnishpurge/bindings' => array('action' => 'Varnishpurge_Bindings/index'),
             'varnishpurge/bindings/section' => array('action' => 'Varnishpurge_Bindings/section'),
-            'varnishpurge/test/purge' => array('action' => 'Varnishpurge_Purge/test')
+            'varnishpurge/test/purge' => array('action' => 'Varnishpurge_Purge/test'),
+            'varnishpurge/test/ban' => array('action' => 'Varnishpurge_Ban/test')
         );
     }
 
@@ -164,7 +169,8 @@ class VarnishpurgePlugin extends BasePlugin
         $level = LogLevel::Info,
         $override = false,
         $debug = false
-    ) {
+    )
+    {
         if ($debug) {
             // Also write to screen
             if ($level === LogLevel::Error) {

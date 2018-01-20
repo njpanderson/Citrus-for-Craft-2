@@ -28,7 +28,6 @@ class Varnishpurge_BindingsController extends BaseController
     public function actionSection()
     {
         $bansSupported = craft()->varnishpurge->getSetting('bansSupported');
-        var_dump($bansSupported);
         $bindTypes = array('PURGE' => 'PURGE');
 
         if ($bansSupported) $bindTypes['BAN'] = 'BAN';

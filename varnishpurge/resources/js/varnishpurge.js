@@ -32,9 +32,17 @@
 		$.post(this.$form.attr('action'), this.$form.serialize())
 			.then($.proxy(function(response) {
 				// Update output
+				var message = '';
+
+				if (response.responses) {
+					response.responses.forEach(function(response) {
+						message += response.message + '\n';
+					});
+				}
+
 				this.$output.html(
 					response.query + '\n\n' +
-					response.message
+					message
 				);
 
 				// Update CSRF token

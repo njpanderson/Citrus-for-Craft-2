@@ -5,6 +5,7 @@ use \njpanderson\VarnishConnect;
 
 class VarnishpurgeController extends BaseController
 {
+	use Varnishpurge_BaseHelper;
 
 	/**
 	 * @var    bool|array Allows anonymous access to this controller's actions.
@@ -31,10 +32,13 @@ class VarnishpurgeController extends BaseController
 					'url' => '#tab-ban'
 				]
 			],
-			'canDoAdminBans' => false
+			'canDoAdminBans' => false,
+			'hosts' => $this->getVarnishHosts()
 		];
 
-		if (craft()->varnishpurge->canDoAdminBans()) {
+		// if (craft()->varnishpurge->canDoAdminBans()) {
+		// TODO: - Send host (in a loop!?)
+		if (false) {
 			$this->addVarnishAdminData($variables);
 			$variables['canDoAdminBans'] = true;
 		}
@@ -50,25 +54,22 @@ class VarnishpurgeController extends BaseController
 	{
 		$type = craft()->request->getPost('purgeban_type');
 		$query = craft()->request->getPost('query');
+		$hostId = $this->getPostWithDefault('host', null);
+
 		HeaderHelper::setHeader('Content-type: application/json');
 
 		if ($type === 'ban') {
 			// Type is "ban" - send a ban query
-			$response = craft()->varnishpurge->banQuery($query);
+			$responses = craft()->varnishpurge->banQuery($query, true, $hostId);
 		} else {
-			// Assume purge - add varnishUrl prefix to query
-			$query = craft()->varnishpurge->getSetting('varnishUrl') . $query;
-			$response = craft()->varnishpurge->purgeURI($query);
+			// Fall back to purge
+			$responses = craft()->varnishpurge->purgeURI($query, $hostId);
 		}
 
 		if (craft()->request->isAjaxRequest) {
 			echo json_encode(array(
 				'query' => $query,
-				'message' => (
-					$response === true ?
-					ucfirst($type . ' query queued.') :
-					ucfirst($type . ' query failed.')
-				),
+				'responses' => ($responses),
 				'CSRF' => array(
 					'name' => craft()->config->get('csrfTokenName'),
 					'value' => craft()->request->getCsrfToken()

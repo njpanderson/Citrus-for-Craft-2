@@ -21,8 +21,16 @@
 				</div>
 
 				<div class="purgeban-query">
-					<span class="prefix">{{ craft.config.get('varnishUrl', 'varnishpurge') }}</span>
-					<input class="text" type="text" id="purge-uri" name="query" value="" autofocus="" autocomplete="off" placeholder="uri/to/page">
+					{# <span class="prefix">{{ craft.config.get('varnishUrl', 'varnishpurge') }}</span> #}
+					<div class="select">
+						<select name="host">
+							<option value="">{{ 'Send to all hosts'|t }}</option>
+							{% for id, host in hosts %}
+							<option value="{{ id }}">{{ id }} ({{ host.hostName }})</option>
+							{% endfor %}
+						</select>
+					</div>
+					<input class="text" type="text" id="purge-uri" name="query" value="" autofocus="" autocomplete="off" placeholder="/uri/to/purge">
 					<input type="submit" class="btn submit" value="Purge URI">
 				</div>
 			</fieldset>
@@ -52,10 +60,25 @@
 				</div>
 
 				<div class="purgeban-query">
-					<span class="prefix" id="ban-prefix"><span class="inner">{{ craft.config.get('banPrefix', 'varnishpurge') }}</span></span>
-					<a href="#" data-prefix-reveal="ban-prefix" class="prefix-reveal">&hellip;</a>
-					<input class="text" type="text" id="ban-query" name="query" value="" autofocus="" autocomplete="off" placeholder=".*" class="">
+					{# <span class="prefix" id="ban-prefix"><span class="inner">{{ craft.config.get('banPrefix', 'varnishpurge') }}</span></span> #}
+					<div class="select">
+						<select name="host">
+							<option value="">{{ 'Send to all hosts'|t }}</option>
+							{% for id, host in hosts %}
+							<option value="{{ id }}">{{ id }} ({{ host.hostName }})</option>
+							{% endfor %}
+						</select>
+					</div>
+					{# <a href="#" data-prefix-reveal="ban-prefix" class="prefix-reveal">&hellip;</a> #}
+					<input class="text" type="text" id="ban-query" name="query" autofocus="" autocomplete="off" placeholder="req.http.host == ${hostname} &amp;&amp; req.url ~ .*" value="req.http.host == ${hostname} &amp;&amp; req.url ~ .*" class="">
 					<input type="submit" class="btn submit" value="Send Ban Query">
+				</div>
+
+				<div class="templates">
+					<b>Template keys available:</b>
+					<ul>
+						<li>${hostName}</li>
+					</ul>
 				</div>
 			</fieldset>
 

@@ -32,7 +32,10 @@ class VarnishpurgeVariable extends BaseApplicationComponent
     {
         $criteria = array_merge(array(
             'entryId' => 0,
-            'uri' => craft()->request->url,
+            'uri' => craft()->elements->getElementUriForLocale(
+                $criteria['entryId'],
+                craft()->language
+            ),
             'uriHash' => null
         ), $criteria);
 
@@ -45,7 +48,8 @@ class VarnishpurgeVariable extends BaseApplicationComponent
 
         craft()->varnishpurge_uri->saveURIEntry(
             $criteria['uri'],
-            $criteria['entryId']
+            $criteria['entryId'],
+            craft()->language
         );
 
         return '';

@@ -16,7 +16,7 @@ class Varnishpurge_uriService extends BaseApplicationComponent
 
         $uri->uri = $pageUri;
         $uri->uriHash = $uriHash;
-        $uri->locale = $locale;
+        $uri->locale = (!empty($locale) ? $locale : null);
 
         $this->saveURI($uri);
 

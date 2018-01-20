@@ -24,7 +24,7 @@
 					{# <span class="prefix">{{ craft.config.get('varnishUrl', 'varnishpurge') }}</span> #}
 					<div class="select">
 						<select name="host">
-							<option value="">{{ 'Send to all hosts'|t }}</option>
+							<option value="">{{ 'Send to all Varnish hosts'|t }}</option>
 							{% for id, host in hosts %}
 							<option value="{{ id }}">{{ id }} ({{ host.hostName }})</option>
 							{% endfor %}
@@ -63,7 +63,7 @@
 					{# <span class="prefix" id="ban-prefix"><span class="inner">{{ craft.config.get('banPrefix', 'varnishpurge') }}</span></span> #}
 					<div class="select">
 						<select name="host">
-							<option value="">{{ 'Send to all hosts'|t }}</option>
+							<option value="">{{ 'Send to all Varnish hosts'|t }}</option>
 							{% for id, host in hosts %}
 							<option value="{{ id }}">{{ id }} ({{ host.hostName }})</option>
 							{% endfor %}
@@ -74,7 +74,7 @@
 					<input type="submit" class="btn submit" value="Send Ban Query">
 				</div>
 
-				<div class="templates">
+				<div class="template-keys">
 					<b>Template keys available:</b>
 					<ul>
 						<li>${hostName}</li>

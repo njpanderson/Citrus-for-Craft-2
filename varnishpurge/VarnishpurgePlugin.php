@@ -129,6 +129,7 @@ class VarnishpurgePlugin extends BasePlugin
 		$context['subnav'] = array();
 		// $context['subnav']['pages'] = array('label' => 'Pages', 'url' => 'varnishpurge/pages');
 		$context['subnav']['bindings'] = array('label' => 'Bindings', 'url' => 'varnishpurge/bindings');
+		$context['subnav']['logs'] = array('label' => 'Logs', 'url' => 'utils/logs/varnishpurge.log');
 	}
 
 	public function addEntryActions()

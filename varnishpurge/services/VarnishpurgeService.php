@@ -33,23 +33,27 @@ class VarnishpurgeService extends BaseApplicationComponent
             $bans = array();
 
             foreach ($elements as $element) {
-                $uris = array_merge($uris, $this->_getElementUris($element, $locale, $purgeRelated));
+                $uris = array_merge(
+                    $uris,
+                    $this->_getElementUris($element, $locale, $purgeRelated)
+                );
 
                 if ($element->getElementType() == ElementType::Entry) {
                     $uris = array_merge($uris, $this->_getTagUris($element->id));
-                    $elementSectionId = $element->section->id;
-                    $elementTypeId = $element->type->id;
 
-                    $uris = array_merge($uris, $this->_getBindingQueries(
-                        $elementSectionId,
-                        $elementTypeId,
+                    $uris = array_merge($uris, $this->getBindingQueries(
+                        $element->section->id,
+                        $element->type->id,
                         Varnishpurge_BindingsRecord::TYPE_PURGE
                     ));
 
-                    $bans = array_merge($bans, $this->_getBindingQueries(
-                        $elementSectionId,
-                        $elementTypeId,
-                        Varnishpurge_BindingsRecord::TYPE_BAN
+                    $bans = array_merge($bans, $this->getBindingQueries(
+                        $element->section->id,
+                        $element->type->id,
+                        array(
+                            Varnishpurge_BindingsRecord::TYPE_BAN,
+                            Varnishpurge_BindingsRecord::TYPE_FULLBAN
+                        )
                     ));
                 }
             }
@@ -102,6 +106,63 @@ class VarnishpurgeService extends BaseApplicationComponent
             'full' => $isFullQuery,
             'hostId' => $hostId
         ));
+    }
+
+    /**
+     * Gets URIs from section/entryType bindings
+     */
+    public function getBindingQueries($sectionId, $typeId, $bindType = null)
+    {
+        $queries = array();
+        $bindings = craft()->varnishpurge_bindings->getBindings(
+            $sectionId,
+            $typeId,
+            $bindType
+        );
+
+        foreach ($bindings as $binding) {
+            if (
+                $binding->bindType === Varnishpurge_BindingsRecord::TYPE_PURGE &&
+                $bindType === Varnishpurge_BindingsRecord::TYPE_PURGE
+                ) {
+                // A single PURGE type is requested
+                $queries[] = $this->makeVarnishUri(
+                    $binding->query,
+                    null,
+                    VarnishpurgePlugin::URI_BINDING
+                );
+            } else if (is_array($bindType)) {
+                // Multiple bind types are requested
+                $queries[] = array(
+                    'query' => $binding->query,
+                    'full' => ($binding->bindType === Varnishpurge_BindingsRecord::TYPE_FULLBAN)
+                );
+            } else {
+                // One bind type is requested (but not purge)
+                $queries[] = $binding->query;
+            }
+        }
+
+        return $queries;
+    }
+
+    public function makeVarnishUri(
+        $uri,
+        $locale = null,
+        $type = VarnishpurgePlugin::URI_ELEMENT,
+        $hostId = null
+    )
+    {
+        if ($locale instanceof LocaleModel) {
+            $locale = $locale->id;
+        }
+
+        return array(
+            'uri' => $uri,
+            'locale' => $locale,
+            'host' => $hostId,
+            'type' => $type
+        );
     }
 
     /**
@@ -192,25 +253,6 @@ class VarnishpurgeService extends BaseApplicationComponent
         return $uris;
     }
 
-    public function makeVarnishUri(
-        $uri,
-        $locale = null,
-        $type = VarnishpurgePlugin::URI_ELEMENT,
-        $hostId = null
-    )
-    {
-        if ($locale instanceof LocaleModel) {
-            $locale = $locale->id;
-        }
-
-        return array(
-            'uri' => $uri,
-            'locale' => $locale,
-            'host' => $hostId,
-            'type' => $type
-        );
-    }
-
     /**
      * Gets URIs from tags attached to the front-end
      */
@@ -226,33 +268,6 @@ class VarnishpurgeService extends BaseApplicationComponent
                 VarnishpurgePlugin::URI_TAG
             );
             $tagUri->delete();
-        }
-
-        return $uris;
-    }
-
-    /**
-     * Gets URIs from section/entryType bindings
-     */
-    private function _getBindingQueries($sectionId, $typeId, $bindType = null)
-    {
-        $uris = array();
-        $bindings = craft()->varnishpurge_bindings->getBindings(
-            $sectionId,
-            $typeId,
-            $bindType
-        );
-
-        foreach ($bindings as $binding) {
-            if ($binding->bindType === 'PURGE') {
-                $uris[] = $this->makeVarnishUri(
-                    $binding->query,
-                    null,
-                    VarnishpurgePlugin::URI_BINDING
-                );
-            } else {
-                $uris[] = $binding->query;
-            }
         }
 
         return $uris;

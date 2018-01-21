@@ -20,6 +20,16 @@ class m180113_173524_varnishpurge_LocaleSupport extends BaseMigration
 			'string'
 		);
 
+		// Alter the craft_varnishpurge_bindings table to add the FULLBAN enum value
+		craft()->db->createCommand()->alterColumn(
+			'varnishpurge_bindings',
+			'bindType',
+			array(
+				'column' => ColumnType::Enum,
+				'values' => Varnishpurge_BindingsRecord::TYPE_PURGE . ',' . Varnishpurge_BindingsRecord::TYPE_BAN . ',' . Varnishpurge_BindingsRecord::TYPE_FULLBAN
+			)
+		);
+
 		return true;
 	}
 }

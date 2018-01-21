@@ -5,6 +5,7 @@ class Varnishpurge_BindingsRecord extends BaseRecord
 {
     const TYPE_PURGE = 'PURGE';
     const TYPE_BAN = 'BAN';
+    const TYPE_FULLBAN = 'FULLBAN';
 
     public function getTableName()
     {
@@ -18,7 +19,7 @@ class Varnishpurge_BindingsRecord extends BaseRecord
             'typeId' => AttributeType::Number,
             'bindType' => [
                 AttributeType::Enum,
-                'values' => self::TYPE_PURGE . ',' . self::TYPE_BAN
+                'values' => self::TYPE_PURGE . ',' . self::TYPE_BAN . ',' . self::TYPE_FULLBAN
             ],
             'query' => AttributeType::String
         );

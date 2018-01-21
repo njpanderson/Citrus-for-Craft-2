@@ -2,11 +2,24 @@
 namespace Craft;
 
 return array(
-    'varnishUrl' => craft()->getSiteUrl(),
+    'varnishHosts' => array(
+        'public' => array(
+            'url' => craft()->getSiteUrl(),
+            'hostName' => craft()->request->hostName,
+            'adminIP' => '',
+            'adminPort' => '',
+            'adminSecret' => ''
+        )
+    ),
+    'varnishUrl' => '',
+    'varnishHostName' => '',
     'purgeEnabled' => isset($_SERVER['HTTP_X_VARNISH']),
     'purgeRelated' => true,
     'logAll' => 0,
-    'purgeUrlMap' => [],
-    'bansSupported' => true,
+    'purgeUriMap' => [],
+    'bansSupported' => false,
+    'adminIP' => '',
+    'adminPort' => '',
+    'adminSecret' => '',
     'banQueryHeader' => 'Ban-Query-Full',
 );

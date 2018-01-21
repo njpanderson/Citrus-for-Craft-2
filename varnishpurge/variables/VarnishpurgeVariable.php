@@ -1,8 +1,9 @@
 <?php
 namespace Craft;
 
-class VarnishpurgeVariable extends Varnishpurge_BaseHelper
+class VarnishpurgeVariable extends BaseApplicationComponent
 {
+    use Varnishpurge_BaseHelper;
 
     /**
      * Gets the client IP, accounting for request being routed through Varnish (HTTP_X_FORWARDED_FOR header set)
@@ -31,7 +32,10 @@ class VarnishpurgeVariable extends Varnishpurge_BaseHelper
     {
         $criteria = array_merge(array(
             'entryId' => 0,
-            'uri' => craft()->request->url,
+            'uri' => craft()->elements->getElementUriForLocale(
+                $criteria['entryId'],
+                craft()->language
+            ),
             'uriHash' => null
         ), $criteria);
 
@@ -44,7 +48,8 @@ class VarnishpurgeVariable extends Varnishpurge_BaseHelper
 
         craft()->varnishpurge_uri->saveURIEntry(
             $criteria['uri'],
-            $criteria['entryId']
+            $criteria['entryId'],
+            craft()->language
         );
 
         return '';

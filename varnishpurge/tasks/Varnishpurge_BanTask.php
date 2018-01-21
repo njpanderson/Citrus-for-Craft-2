@@ -1,80 +1,60 @@
 <?php
 namespace Craft;
 
-
 class Varnishpurge_BanTask extends BaseTask
 {
-    private $_bans;
+	private $_bans;
+	private $_socket;
+	private $_ban;
+	private $_debug;
 
-    public function getDescription()
-    {
-        return Craft::t('Banning from Varnish cache');
-    }
+	public function __construct()
+	{
+		$this->_ban = new Varnishpurge_BanHelper();
+	}
 
-    public function getTotalSteps()
-    {
-        $bans = $this->getSettings()->bans;
+	public function getDescription()
+	{
+		return Craft::t('Banning from Varnish cache');
+	}
 
-        $this->_bans = array();
-        $this->_bans = array_chunk($bans, 20);
+	public function getTotalSteps()
+	{
+		$this->_bans = $this->getSettings()->bans;
+		$this->_debug = $this->getSettings()->debug;
 
-        return count($this->_bans);
-    }
+		return count($this->_bans);
+	}
 
-    public function runStep($step)
-    {
-        VarnishpurgePlugin::log(
-            'Varnish ban task run step: ' . $step,
-            LogLevel::Info,
-            craft()->varnishpurge->getSetting('logAll')
-        );
+	public function runStep($step)
+	{
+		require_once __DIR__ . '/../vendor/autoload.php';
 
-        $batch = \Guzzle\Batch\BatchBuilder::factory()
-          ->transferRequests(20)
-          ->bufferExceptions()
-          ->build();
+		if (!isset($this->_bans[$step]['full'])) {
+			$this->_bans[$step]['full'] = false;
+		}
 
-        $client = new \Guzzle\Http\Client();
-        $client->setDefaultOption('headers/Accept', '*/*');
+		if (!isset($this->_bans[$step]['hostId'])) {
+			$this->_bans[$step]['hostId'] = null;
+		}
 
-        $banQueryHeader = craft()->varnishpurge->getSetting('banQueryHeader');
-        $headers = array();
+		$this->_ban->ban(
+			$this->_bans[$step],
+			$this->_debug
+		);
 
-        foreach ($this->_bans[$step] as $query) {
-            $banQuery =
-                'obj.http.host == ' . craft()->request->hostName .
-                ' && obj.http.url ~ ' . $query;
+		// Sleep for .1 seconds
+		usleep(100000);
 
-            // $headers[$banQueryHeader] = urlencode($banQuery);
-            $headers[$banQueryHeader] = $banQuery;
+		return true;
+	}
 
-            VarnishpurgePlugin::log(
-                'Adding query to ban: ' . $banQuery,
-                LogLevel::Info,
-                craft()->varnishpurge->getSetting('logAll')
-            );
-
-            // Ban requests always go to / but with a header determining the ban query
-            $request = $client->createRequest('BAN', craft()->request->hostInfo . '/', $headers);
-            $batch->add($request);
-        }
-
-        $requests = $batch->flush();
-
-        foreach ($batch->getExceptions() as $e) {
-            VarnishpurgePlugin::log('An exception occurred: ' . $e->getMessage(), LogLevel::Error);
-        }
-
-        $batch->clearExceptions();
-
-        return true;
-    }
-
-    protected function defineSettings()
-    {
-        return array(
-          'bans' => AttributeType::Mixed
-        );
-    }
+	protected function defineSettings()
+	{
+		return array(
+		  'bans' => AttributeType::Mixed,
+		  'debug' => AttributeType::Bool
+		);
+	}
 
 }

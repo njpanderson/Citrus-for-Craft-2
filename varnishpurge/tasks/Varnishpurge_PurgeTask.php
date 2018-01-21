@@ -1,68 +1,50 @@
 <?php
 namespace Craft;
 
-
 class Varnishpurge_PurgeTask extends BaseTask
 {
-    private $_urls;
-    private $_locale;
+	private $_uris;
+	private $_debug;
+	private $_purge;
 
-    public function getDescription()
-    {
-        return Craft::t('Purging Varnish cache');
-    }
+	public function __construct()
+	{
+		$this->_purge = new Varnishpurge_PurgeHelper();
+	}
 
-    public function getTotalSteps()
-    {
-        $urls = $this->getSettings()->urls;
-        $this->_locale = $this->getSettings()->locale;
+	public function getDescription()
+	{
+		return Craft::t('Purging Varnish cache');
+	}
 
-        $this->_urls = array();
-        $this->_urls = array_chunk($urls, 20);
+	public function getTotalSteps()
+	{
+		$this->_uris = $this->getSettings()->uris;
+		$this->_debug = $this->getSettings()->debug;
 
-        return count($this->_urls);
-    }
+		return count($this->_uris);
+	}
 
-    public function runStep($step)
-    {
-        VarnishpurgePlugin::log(
-            'Varnish purge task run step: ' . $step,
-            LogLevel::Info,
-            craft()->varnishpurge->getSetting('logAll')
-        );
+	public function runStep($step)
+	{
+		$this->_purge->purge(
+			$this->_uris[$step],
+			$this->_debug
+		);
 
-        $batch = \Guzzle\Batch\BatchBuilder::factory()
-          ->transferRequests(20)
-          ->bufferExceptions()
-          ->build();
+		// Sleep for .1 seconds
+		usleep(100000);
 
-        $client = new \Guzzle\Http\Client();
-        $client->setDefaultOption('headers/Accept', '*/*');
+		return true;
+	}
 
-        foreach ($this->_urls[$step] as $url) {
-            VarnishpurgePlugin::log('Adding url to purge: ' . $url, LogLevel::Info, craft()->varnishpurge->getSetting('logAll'));
-
-            $request = $client->createRequest('PURGE', $url);
-            $batch->add($request);
-        }
-
-        $requests = $batch->flush();
-
-        foreach ($batch->getExceptions() as $e) {
-            VarnishpurgePlugin::log('An exception occurred: ' . $e->getMessage(), LogLevel::Error);
-        }
-
-        $batch->clearExceptions();
-
-        return true;
-    }
-
-    protected function defineSettings()
-    {
-        return array(
-          'urls' => AttributeType::Mixed,
-          'locale' => AttributeType::String
-        );
-    }
+	protected function defineSettings()
+	{
+		return array(
+		  'uris' => AttributeType::Mixed,
+		  'locale' => AttributeType::String,
+		  'debug' => AttributeType::Bool,
+		);
+	}
 
 }

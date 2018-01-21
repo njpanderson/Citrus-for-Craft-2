@@ -5,7 +5,7 @@ class Varnishpurge_uriService extends BaseApplicationComponent
 {
     use Varnishpurge_BaseHelper;
 
-    public function saveURIEntry(string $pageUri, int $entryId)
+    public function saveURIEntry(string $pageUri, int $entryId, string $locale)
     {
         $uriHash = $this->hash($pageUri);
 
@@ -16,6 +16,7 @@ class Varnishpurge_uriService extends BaseApplicationComponent
 
         $uri->uri = $pageUri;
         $uri->uriHash = $uriHash;
+        $uri->locale = (!empty($locale) ? $locale : null);
 
         $this->saveURI($uri);
 

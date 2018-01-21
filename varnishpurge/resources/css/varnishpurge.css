@@ -69,5 +69,26 @@ form.purgeban .prefix {
 }
 
 .instructions b {
-	color: #29323d;
+	color: #2a343f;
+}
+
+.template-keys {
+	margin: 10px 0;
+	padding: 10px;
+	background-color: rgb(245, 245, 245);
+}
+
+.template-keys h3 {
+	margin: 5px 0;
+}
+
+.template-keys p {
+	margin: 5px 0;
+}
+
+.template-keys li {
+	display: inline-block;
+	border-radius: 3px;
+	padding: 2px 4px;
+	background-color: #7aaff0;
 }

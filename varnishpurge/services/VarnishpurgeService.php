@@ -3,17 +3,16 @@ namespace Craft;
 
 class VarnishpurgeService extends BaseApplicationComponent
 {
-
-    var $settings = array();
+    public $settings = array();
 
     /**
      * Purge a single element. Just a wrapper for purgeElements().
      *
      * @param  mixed $event
      */
-    public function purgeElement($element, $purgeRelated = true)
+    public function purgeElement($element, $purgeRelated = true, $debug = false)
     {
-        $this->purgeElements(array($element), $purgeRelated);
+        return $this->purgeElements(array($element), $purgeRelated, $debug);
     }
 
     /**
@@ -21,8 +20,10 @@ class VarnishpurgeService extends BaseApplicationComponent
      *
      * @param  mixed $event
      */
-    public function purgeElements($elements, $purgeRelated = true)
+    public function purgeElements($elements, $purgeRelated = true, $debug = false)
     {
+        $tasks = array();
+
         if (count($elements) > 0) {
             // Assume that we only want to purge elements in one locale.
             // May not be the case if other thirdparty plugins sends elements.
@@ -32,62 +33,136 @@ class VarnishpurgeService extends BaseApplicationComponent
             $bans = array();
 
             foreach ($elements as $element) {
-                $uris = array_merge($uris, $this->_getElementUris($element, $locale, $purgeRelated));
+                $uris = array_merge(
+                    $uris,
+                    $this->_getElementUris($element, $locale, $purgeRelated)
+                );
 
                 if ($element->getElementType() == ElementType::Entry) {
                     $uris = array_merge($uris, $this->_getTagUris($element->id));
-                    $elementSectionId = $element->section->id;
-                    $elementTypeId = $element->type->id;
 
-                    $uris = array_merge($uris, $this->_getBindingQueries(
-                        $elementSectionId,
-                        $elementTypeId,
+                    $uris = array_merge($uris, $this->getBindingQueries(
+                        $element->section->id,
+                        $element->type->id,
                         Varnishpurge_BindingsRecord::TYPE_PURGE
                     ));
 
-                    $bans = array_merge($bans, $this->_getBindingQueries(
-                        $elementSectionId,
-                        $elementTypeId,
-                        Varnishpurge_BindingsRecord::TYPE_BAN
+                    $bans = array_merge($bans, $this->getBindingQueries(
+                        $element->section->id,
+                        $element->type->id,
+                        array(
+                            Varnishpurge_BindingsRecord::TYPE_BAN,
+                            Varnishpurge_BindingsRecord::TYPE_FULLBAN
+                        )
                     ));
                 }
             }
 
-            $urls = $this->_generateUrls($uris, $locale);
-            $urls = array_merge($urls, $this->_getMappedUrls($urls));
-            $urls = array_unique($urls);
+            $uris = $this->_uniqueUris($uris);
+            // $uris = array_merge($uris, $this->_getMappedUris($uris));
 
-            if (count($urls) > 0) {
-                $this->_makeTask('Varnishpurge_Purge', array(
-                    'urls' => $urls,
-                    'locale' => $locale
-                ));
+            if (count($uris) > 0) {
+                array_push(
+                    $tasks,
+                    $this->_makeTask('Varnishpurge_Purge', array(
+                        'uris' => $uris,
+                        'debug' => $debug
+                    ))
+                );
             }
 
             if (count($bans) > 0) {
-                $this->_makeTask('Varnishpurge_Ban', array(
-                    'bans' => $bans
-                ));
+                array_push(
+                    $tasks,
+                    $this->_makeTask('Varnishpurge_Ban', array(
+                        'bans' => $bans,
+                        'debug' => $debug
+                    ))
+                );
             }
         }
+
+        return $tasks;
     }
 
-    public function purgeURI($uri)
+    public function purgeURI($uri, $hostId = null)
     {
-        $this->_makeTask('Varnishpurge_Purge', array(
-            'urls' => array($uri)
-        ));
+        $purge = new Varnishpurge_PurgeHelper;
 
-        return true;
+        return $purge->purge($this->makeVarnishUri(
+            $uri,
+            null,
+            VarnishpurgePlugin::URI_ELEMENT,
+            $hostId
+        ));
     }
 
-    public function banQuery($query)
+    public function banQuery($query, $isFullQuery = false, $hostId = null)
     {
-        $this->_makeTask('Varnishpurge_Ban', array(
-            'bans' => array($query)
-        ));
+        $ban = new Varnishpurge_BanHelper;
 
-        return true;
+        return $ban->ban(array(
+            'query' => $query,
+            'full' => $isFullQuery,
+            'hostId' => $hostId
+        ));
+    }
+
+    /**
+     * Gets URIs from section/entryType bindings
+     */
+    public function getBindingQueries($sectionId, $typeId, $bindType = null)
+    {
+        $queries = array();
+        $bindings = craft()->varnishpurge_bindings->getBindings(
+            $sectionId,
+            $typeId,
+            $bindType
+        );
+
+        foreach ($bindings as $binding) {
+            if (
+                $binding->bindType === Varnishpurge_BindingsRecord::TYPE_PURGE &&
+                $bindType === Varnishpurge_BindingsRecord::TYPE_PURGE
+                ) {
+                // A single PURGE type is requested
+                $queries[] = $this->makeVarnishUri(
+                    $binding->query,
+                    null,
+                    VarnishpurgePlugin::URI_BINDING
+                );
+            } else if (is_array($bindType)) {
+                // Multiple bind types are requested
+                $queries[] = array(
+                    'query' => $binding->query,
+                    'full' => ($binding->bindType === Varnishpurge_BindingsRecord::TYPE_FULLBAN)
+                );
+            } else {
+                // One bind type is requested (but not purge)
+                $queries[] = $binding->query;
+            }
+        }
+
+        return $queries;
+    }
+
+    public function makeVarnishUri(
+        $uri,
+        $locale = null,
+        $type = VarnishpurgePlugin::URI_ELEMENT,
+        $hostId = null
+    )
+    {
+        if ($locale instanceof LocaleModel) {
+            $locale = $locale->id;
+        }
+
+        return array(
+            'uri' => $uri,
+            'locale' => $locale,
+            'host' => $hostId,
+            'type' => $type
+        );
     }
 
     /**
@@ -103,68 +178,71 @@ class VarnishpurgeService extends BaseApplicationComponent
     {
         $uris = array();
 
-        // Get elements own uri
-        if ($element->uri != '') {
-            $uris[] = $element->uri;
+        foreach (craft()->i18n->getEditableLocales() as $locale) {
+            if ($element->uri) {
+                $uris[] = $this->makeVarnishUri(
+                    craft()->elements->getElementUriForLocale($element->id, $locale),
+                    $locale
+                );
+            }
+
+            // If this is a matrix block, get the uri of matrix block owner
+            if ($element->getElementType() == ElementType::MatrixBlock) {
+                if ($element->owner->uri != '') {
+                    $uris[] = $this->makeVarnishUri($element->owner->uri, $locale);
+                }
+            }
+
+            // Get related elements and their uris
+            if ($getRelated) {
+                // get directly related entries
+                $relatedEntries = $this->_getRelatedElementsOfType($element, $locale, ElementType::Entry);
+                foreach ($relatedEntries as $related) {
+                    if ($related->uri != '') {
+                        $uris[] = $this->makeVarnishUri($related->uri, $locale);
+                    }
+                }
+                unset($relatedEntries);
+
+                // get directly related categories
+                $relatedCategories = $this->_getRelatedElementsOfType($element, $locale, ElementType::Category);
+                foreach ($relatedCategories as $related) {
+                    if ($related->uri != '') {
+                        $uris[] = $this->makeVarnishUri($related->uri, $locale);
+                    }
+                }
+                unset($relatedCategories);
+
+                // get directly related matrix block and its owners uri
+                $relatedMatrixes = $this->_getRelatedElementsOfType($element, $locale, ElementType::MatrixBlock);
+                foreach ($relatedMatrixes as $relatedMatrixBlock) {
+                    if ($relatedMatrixBlock->owner->uri != '') {
+                        $uris[] = $this->makeVarnishUri($relatedMatrixBlock->owner->uri, $locale);
+                    }
+                }
+                unset($relatedMatrixes);
+
+                // get directly related categories
+                $relatedCategories = $this->_getRelatedElementsOfType($element, $locale, ElementType::Category);
+                foreach ($relatedCategories as $related) {
+                    if ($related->uri != '') {
+                        $uris[] = $this->makeVarnishUri($related->uri, $locale);
+                    }
+                }
+                unset($relatedCategories);
+
+                // get directly Commerce products
+                $relatedProducts = $this->_getRelatedElementsOfType($element, $locale, 'Commerce_Product');
+                foreach ($relatedProducts as $related) {
+                    if ($related->uri != '') {
+                        $uris[] = $this->makeVarnishUri($related->uri, $locale);
+                    }
+                }
+                unset($relatedProducts);
+            }
         }
 
-        // If this is a matrix block, get the uri of matrix block owner
-        if ($element->getElementType() == ElementType::MatrixBlock) {
-            if ($element->owner->uri != '') {
-                $uris[] = $element->owner->uri;
-            }
-        }
-
-        // Get related elements and their uris
-        if ($getRelated) {
-
-            // get directly related entries
-            $relatedEntries = $this->_getRelatedElementsOfType($element, $locale, ElementType::Entry);
-            foreach ($relatedEntries as $related) {
-                if ($related->uri != '') {
-                    $uris[] = $related->uri;
-                }
-            }
-            unset($relatedEntries);
-
-            // get directly related categories
-            $relatedCategories = $this->_getRelatedElementsOfType($element, $locale, ElementType::Category);
-            foreach ($relatedCategories as $related) {
-                if ($related->uri != '') {
-                    $uris[] = $related->uri;
-                }
-            }
-            unset($relatedCategories);
-
-            // get directly related matrix block and its owners uri
-            $relatedMatrixes = $this->_getRelatedElementsOfType($element, $locale, ElementType::MatrixBlock);
-            foreach ($relatedMatrixes as $relatedMatrixBlock) {
-                if ($relatedMatrixBlock->owner->uri != '') {
-                    $uris[] = $relatedMatrixBlock->owner->uri;
-                }
-            }
-            unset($relatedMatrixes);
-
-            // get directly related categories
-            $relatedCategories = $this->_getRelatedElementsOfType($element, $locale, ElementType::Category);
-            foreach ($relatedCategories as $related) {
-                if ($related->uri != '') {
-                    $uris[] = $related->uri;
-                }
-            }
-            unset($relatedCategories);
-
-            // get directly Commerce products
-            $relatedProducts = $this->_getRelatedElementsOfType($element, $locale, 'Commerce_Product');
-            foreach ($relatedProducts as $related) {
-                if ($related->uri != '') {
-                    $uris[] = $related->uri;
-                }
-            }
-            unset($relatedProducts);
-        }
-
-        $uris = array_unique($uris);
+        $uris = $this->_uniqueUris($uris);
 
         foreach (craft()->plugins->call('varnishPurgeTransformElementUris', [$element, $uris]) as $plugin => $pluginUris) {
             if ($pluginUris !== null) {
@@ -184,27 +262,12 @@ class VarnishpurgeService extends BaseApplicationComponent
         $tagUris = craft()->varnishpurge_uri->getAllURIsByEntryId($elementId);
 
         foreach ($tagUris as $tagUri) {
-            $uris[] = $tagUri->uri;
+            $uris[] = $this->makeVarnishUri(
+                $tagUri->uri,
+                $tagUri->locale,
+                VarnishpurgePlugin::URI_TAG
+            );
             $tagUri->delete();
-        }
-
-        return $uris;
-    }
-
-    /**
-     * Gets URIs from section/entryType bindings
-     */
-    private function _getBindingQueries($sectionId, $typeId, $bindType = null)
-    {
-        $uris = array();
-        $bindings = craft()->varnishpurge_bindings->getBindings(
-            $sectionId,
-            $typeId,
-            $bindType
-        );
-
-        foreach ($bindings as $binding) {
-            $uris[] = $binding->query;
         }
 
         return $uris;
@@ -233,65 +296,28 @@ class VarnishpurgeService extends BaseApplicationComponent
      *
      *
      * @param $uris
-     * @param $locale
      * @return array
      */
-    private function _generateUrls($uris, $locale)
+    private function _getMappedUris($uris)
     {
-        $urls = array();
-        $varnishUrlSetting = craft()->varnishpurge->getSetting('varnishUrl');
-
-        if (is_array($varnishUrlSetting)) {
-            $varnishUrl = $varnishUrlSetting[$locale];
-        } else {
-            $varnishUrl = $varnishUrlSetting;
-        }
-
-        if (!$varnishUrl) {
-            VarnishpurgePlugin::log('Varnish URL could not be found', LogLevel::Error);
-            return $urls;
-        }
-
-        foreach ($uris as $uri) {
-            $path = $uri == '__home__' ? '' : $uri;
-            $url = rtrim($varnishUrl, '/') . '/' . trim($path, '/');
-
-            if ($path && craft()->config->get('addTrailingSlashesToUrls')) {
-                $url .= '/';
-            }
-
-            array_push($urls, $url);
-        }
-
-        return $urls;
-    }
-
-    /**
-     *
-     *
-     * @param $uris
-     * @return array
-     */
-    private function _getMappedUrls($urls)
-    {
-        $mappedUrls = array();
-        $map = $this->getSetting('purgeUrlMap');
+        $mappedUris = array();
+        $map = $this->getSetting('purgeUriMap');
 
         if (is_array($map)) {
-            foreach ($urls as $url) {
-                if (isset($map[$url])) {
-                    $mappedVal = $map[$url];
+            foreach ($uris as $uri) {
+                if (isset($map[$uri->uri])) {
+                    $mappedVal = $map[$uri->uri];
 
                     if (is_array($mappedVal)) {
-                        $mappedUrls = array_merge($mappedUrls, $mappedVal);
+                        $mappedUris = array_merge($mappedUris, $mappedVal);
                     } else {
-                        array_push($mappedUrls, $mappedVal);
+                        array_push($mappedUris, $mappedVal);
                     }
                 }
             }
         }
 
-        return $mappedUrls;
+        return $mappedUris;
     }
 
     /**
@@ -303,12 +329,6 @@ class VarnishpurgeService extends BaseApplicationComponent
      */
     private function _makeTask($taskName, $settings = array())
     {
-        VarnishpurgePlugin::log(
-            'Creating task (' . $taskName . ')',
-            LogLevel::Info,
-            craft()->varnishpurge->getSetting('logAll')
-        );
-
         // If there are any pending tasks, just append the paths to it
         $task = craft()->tasks->getNextPendingTask($taskName);
 
@@ -317,19 +337,19 @@ class VarnishpurgeService extends BaseApplicationComponent
 
             switch ($taskName) {
             case 'Varnishpurge_Purge':
-                // Ensure 'urls' setting is an array
-                if (!is_array($original_settings['urls'])) {
-                    $original_settings['urls'] = array($original_settings['urls']);
+                // Ensure 'uris' setting is an array
+                if (!is_array($original_settings['uris'])) {
+                    $original_settings['uris'] = array($original_settings['uris']);
                 }
 
                 // Merge with existing URLs
-                $original_settings['urls'] = array_merge(
-                    $original_settings['urls'],
-                    $settings['urls']
+                $original_settings['uris'] = array_merge(
+                    $original_settings['uris'],
+                    $settings['uris']
                 );
 
                 // Make sure there aren't any duplicate paths
-                $original_settings['urls'] = array_unique($original_settings['urls']);
+                $original_settings['uris'] = $this->_uniqueUris($original_settings['uris']);
                 break;
 
             case 'Varnishpurge_Ban':
@@ -340,15 +360,29 @@ class VarnishpurgeService extends BaseApplicationComponent
                 );
 
                 // Make sure there aren't any duplicate bans
-                $original_settings['bans'] = array_unique($original_settings['bans']);
+                $original_settings['bans'] = $this->_uniqueUris($original_settings['bans']);
                 break;
             }
 
             // Set the new settings and save the task
             $task->settings = $original_settings;
             craft()->tasks->saveTask($task, false);
+
+            VarnishpurgePlugin::log(
+                'Appended task (' . $taskName . ')',
+                LogLevel::Info,
+                craft()->varnishpurge->getSetting('logAll')
+            );
+
+            return $task;
         } else {
-            craft()->tasks->createTask($taskName, null, $settings);
+            VarnishpurgePlugin::log(
+                'Created task (' . $taskName . ')',
+                LogLevel::Info,
+                craft()->varnishpurge->getSetting('logAll')
+            );
+
+            return craft()->tasks->createTask($taskName, null, $settings);
         }
     }
 
@@ -364,11 +398,14 @@ class VarnishpurgeService extends BaseApplicationComponent
         return craft()->config->get($name, 'varnishpurge');
     }
 
-    public function canDoAdminBans()
-    {
-        return !empty(craft()->varnishpurge->getSetting('adminIP')) &&
-			!empty(craft()->varnishpurge->getSetting('adminPort')) &&
-			!empty(craft()->varnishpurge->getSetting('adminSecret'));
-    }
+    private function _uniqueUris($uris) {
+        $found = array();
 
+        return array_filter($uris, function($uri) use ($found) {
+            if (!in_array($uri['uri'], $found)) {
+                array_push($found, $uri['uri']);
+                return true;
+            }
+        });
+    }
 }

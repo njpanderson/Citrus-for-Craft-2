@@ -16,6 +16,7 @@ class Varnishpurge_uriRecord extends BaseRecord
                 AttributeType::Uri,
                 'column' => ColumnType::MediumText
             ),
+            'locale' => AttributeType::String
         );
     }
 

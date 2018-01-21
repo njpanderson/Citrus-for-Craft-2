@@ -21,8 +21,15 @@
 				</div>
 
 				<div class="purgeban-query">
-					<span class="prefix">{{ craft.config.get('varnishUrl', 'varnishpurge') }}</span>
-					<input class="text" type="text" id="purge-uri" name="query" value="" autofocus="" autocomplete="off" placeholder="uri/to/page">
+					<div class="select">
+						<select name="host">
+							<option value="">{{ 'Send to all Varnish hosts'|t }}</option>
+							{% for id, host in hosts %}
+							<option value="{{ id }}">{{ id }} ({{ host.hostName }})</option>
+							{% endfor %}
+						</select>
+					</div>
+					<input class="text" type="text" id="purge-uri" name="query" value="" autofocus="" autocomplete="off" placeholder="/uri/to/purge">
 					<input type="submit" class="btn submit" value="Purge URI">
 				</div>
 			</fieldset>
@@ -32,65 +39,61 @@
 		</form>
 	</div>
 
-	<div id="tab-ban" class="hidden">
-		<form id="frm-ban" class="purgeban">
-			<div class="instructions">
-				{% if admin_error is defined %}
-					<p><b>Error with Varnish Admin socket:</b> <span class="error">{{ admin_error }}</span></p>
-				{% endif %}
+	{% if bansSupported %}
+		<div id="tab-ban" class="hidden">
+			<form id="frm-ban" class="purgeban">
+				<fieldset>
+					<div class="heading">
+						<label id="title-label" class="required" for="ban-query">Full query</label>
+					</div>
 
-				{% if canDoAdminBans %}
-				<p>Banning via admin socket on port <b>{{ craft.config.get('adminPort', 'varnishpurge') }}</b></p>
-				{% else %}
-				<p>Banning via HTTP - <b>Ensure your VCL supports ban header logic</b>.</p>
-				{% endif %}
-			</div>
+					<div class="purgeban-query">
+						<div class="select">
+							<select name="host">
+								<option value="">{{ 'Send to all Varnish hosts'|t }}</option>
+								{% for id, host in hosts %}
+								<option value="{{ id }}">{{ id }} ({{ host.hostName }})</option>
+								{% endfor %}
+							</select>
+						</div>
+						{# <a href="#" data-prefix-reveal="ban-prefix" class="prefix-reveal">&hellip;</a> #}
+						<input class="text" type="text" id="ban-query" name="query" autofocus="" autocomplete="off" placeholder="req.http.host == ${hostname} &amp;&amp; req.url ~ .*" value="req.http.host == ${hostname} &amp;&amp; req.url ~ .*" class="">
+						<input type="submit" class="btn submit" value="Send Ban Query">
+					</div>
 
-			<fieldset>
-				<div class="heading">
-					<label id="title-label" class="required" for="ban-query">Query</label>
-				</div>
+					{% include 'varnishpurge/fragments/bankeys' %}
+				</fieldset>
 
-				<div class="purgeban-query">
-					<span class="prefix" id="ban-prefix"><span class="inner">{{ craft.config.get('banPrefix', 'varnishpurge') }}</span></span>
-					<a href="#" data-prefix-reveal="ban-prefix" class="prefix-reveal">&hellip;</a>
-					<input class="text" type="text" id="ban-query" name="query" value="" autofocus="" autocomplete="off" placeholder=".*" class="">
-					<input type="submit" class="btn submit" value="Send Ban Query">
-				</div>
-			</fieldset>
-
-			<input type="hidden" name="purgeban_type" value="ban">
-			<input type="hidden" name="{{ craft.config.csrfTokenName }}" value="{{ craft.request.csrfToken }}">
-		</form>
-	</div>
+				<input type="hidden" name="purgeban_type" value="ban">
+				<input type="hidden" name="{{ craft.config.csrfTokenName }}" value="{{ craft.request.csrfToken }}">
+			</form>
+		</div>
+	{% endif %}
 
 	<div id="purgeban-output">
-		<pre><code class="output">Purge/ban output</code></pre>
+		<pre><code class="output">Output</code></pre>
 	</div>
 
-	{% if (banlist is defined) %}
+	{% if adminHosts|length > 0 and bansSupported %}
 	<div class="dashboard">
 		<div class="banlist">
-			<h2>Current ban list</h2>
+			<form id="frm-banlist" action="/admin/varnishpurge/ban/list" method="post" class="ajax-form" data-output="#banlist-output">
+				<fieldset>
+					<div class="select">
+						<select name="host">
+							<option value="">{{ 'All hosts'|t }}</option>
+							{% for id, host in adminHosts %}
+								<option value="{{ id }}">{{ id }} ({{ host.hostName }})</option>
+							{% endfor %}
+						</select>
+					</div>
+					<input type="submit" class="btn submit" value="Get ban list">
+				</fieldset>
 
-			<table class="data fullwidth">
-				<thead>
-					<tr>
-						<th>Spec</th>
-						<th>Flags</th>
-						<th>Date</th>
-					</tr>
-				</thead>
-				<tbody>
-					{% for ban in banlist %}
-					<tr>
-						<td>{{ ban.spec }}</td>
-						<td>{{ ban.flags }}</td>
-						<td>{{ ban.gmdate|date('j M Y g:i a') }}</td>
-					</tr>
-					{% endfor %}
-				</tbody>
-			</table>
+				<input type="hidden" name="{{ craft.config.csrfTokenName }}" value="{{ craft.request.csrfToken }}">
+			</form>
+
+			<div id="banlist-output"></div>
 		</div>
 	</div>
 	{% endif %}

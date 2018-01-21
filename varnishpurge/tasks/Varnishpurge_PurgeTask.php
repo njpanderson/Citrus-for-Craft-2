@@ -3,65 +3,48 @@ namespace Craft;
 
 class Varnishpurge_PurgeTask extends BaseTask
 {
-    private $_urls;
-    private $_debug;
+	private $_uris;
+	private $_debug;
+	private $_purge;
 
-    public function getDescription()
-    {
-        return Craft::t('Purging Varnish cache');
-    }
+	public function __construct()
+	{
+		$this->_purge = new Varnishpurge_PurgeHelper();
+	}
 
-    public function getTotalSteps()
-    {
-        $this->_urls = $this->getSettings()->urls;
-        $this->_debug = $this->getSettings()->debug;
+	public function getDescription()
+	{
+		return Craft::t('Purging Varnish cache');
+	}
 
-        return count($this->_urls);
-    }
+	public function getTotalSteps()
+	{
+		$this->_uris = $this->getSettings()->uris;
+		$this->_debug = $this->getSettings()->debug;
 
-    public function runStep($step)
-    {
-        $client = new \Guzzle\Http\Client();
-        $client->setDefaultOption('headers/Accept', '*/*');
-        $headers = array(
-            'Host' => craft()->varnishpurge->getSetting('varnishHostName')
-        );
+		return count($this->_uris);
+	}
 
-        VarnishpurgePlugin::log(
-            'Adding url to purge: ' . $this->_urls[$step],
-            LogLevel::Info,
-            craft()->varnishpurge->getSetting('logAll'),
-            $this->_debug
-        );
+	public function runStep($step)
+	{
+		$this->_purge->purge(
+			$this->_uris[$step],
+			$this->_debug
+		);
 
-        $request = $client->createRequest('PURGE', $this->_urls[$step], $headers);
+		// Sleep for .1 seconds
+		usleep(100000);
 
-        try {
-            $response = $request->send();
-        } catch (\Guzzle\Http\Exception\BadResponseException $e) {
-            VarnishpurgePlugin::log(
-                'Error on PURGE URL "' . $e->getRequest()->getUrl() . '"' .
-                    ' (' . $e->getResponse()->getStatusCode() . ' - ' .
-                    $e->getResponse()->getReasonPhrase() . ')',
-                LogLevel::Error,
-                true,
-                $this->_debug
-            );
-        }
+		return true;
+	}
 
-        // Sleep for .1 seconds
-        usleep(100000);
-
-        return true;
-    }
-
-    protected function defineSettings()
-    {
-        return array(
-          'urls' => AttributeType::Mixed,
-          'locale' => AttributeType::String,
-          'debug' => AttributeType::Bool,
-        );
-    }
+	protected function defineSettings()
+	{
+		return array(
+		  'uris' => AttributeType::Mixed,
+		  'locale' => AttributeType::String,
+		  'debug' => AttributeType::Bool,
+		);
+	}
 
 }

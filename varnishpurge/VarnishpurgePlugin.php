@@ -4,177 +4,187 @@ namespace Craft;
 class VarnishpurgePlugin extends BasePlugin
 {
 
-    protected $_version = '0.3.0',
-      $_schemaVersion = '1.1.0',
-      $_name = 'Varnish Purge',
-      $_url = 'https://github.com/aelvan/VarnishPurge-Craft',
-      $_releaseFeedUrl = 'https://raw.githubusercontent.com/aelvan/VarnishPurge-Craft/master/releases.json',
-      $_documentationUrl = 'https://github.com/aelvan/VarnishPurge-Craft/blob/master/README.md',
-      $_description = 'Purge that Varnish cache!',
-      $_developer = 'André Elvan',
-      $_developerUrl = 'http://vaersaagod.no/',
-      $_minVersion = '2.4';
+	protected $_version = '0.4.0',
+	  $_schemaVersion = '1.2.0',
+	  $_name = 'Varnish Purge',
+	  $_url = 'https://github.com/njpanderson/VarnishPurge-Craft',
+	  $_releaseFeedUrl = 'https://raw.githubusercontent.com/njpanderson/VarnishPurge-Craft/master/releases.json',
+	  $_documentationUrl = 'https://github.com/njpanderson/VarnishPurge-Craft/blob/master/README.md',
+	  $_description = 'Varnish cache purging/management plugin',
+	  $_developer = 'Neil Anderson',
+	  $_developerUrl = 'http://neilinscotland.net/',
+	  $_minVersion = '2.4';
 
-    public function getName()
-    {
-        return Craft::t($this->_name);
-    }
+	const URI_TAG = 0;
+	const URI_ELEMENT = 1;
+	const URI_BINDING = 2;
 
-    public function getUrl()
-    {
-        return $this->_url;
-    }
+	public function getName()
+	{
+		return Craft::t($this->_name);
+	}
 
-    public function getVersion()
-    {
-        return $this->_version;
-    }
+	public function getUrl()
+	{
+		return $this->_url;
+	}
 
-    public function getDeveloper()
-    {
-        return $this->_developer;
-    }
+	public function getVersion()
+	{
+		return $this->_version;
+	}
 
-    public function getDeveloperUrl()
-    {
-        return $this->_developerUrl;
-    }
+	public function getDeveloper()
+	{
+		return $this->_developer;
+	}
 
-    public function getDescription()
-    {
-        return $this->_description;
-    }
+	public function getDeveloperUrl()
+	{
+		return $this->_developerUrl;
+	}
 
-    public function getDocumentationUrl()
-    {
-        return $this->_documentationUrl;
-    }
+	public function getDescription()
+	{
+		return $this->_description;
+	}
 
-    public function getSchemaVersion()
-    {
-        return $this->_schemaVersion;
-    }
+	public function getDocumentationUrl()
+	{
+		return $this->_documentationUrl;
+	}
 
-    public function getReleaseFeedUrl()
-    {
-        return $this->_releaseFeedUrl;
-    }
+	public function getSchemaVersion()
+	{
+		return $this->_schemaVersion;
+	}
 
-    public function getCraftRequiredVersion()
-    {
-        return $this->_minVersion;
-    }
+	public function getReleaseFeedUrl()
+	{
+		return $this->_releaseFeedUrl;
+	}
 
-    public function hasCpSection()
-    {
-        return true;
-    }
+	public function getCraftRequiredVersion()
+	{
+		return $this->_minVersion;
+	}
 
-    public function init()
-    {
-        parent::init();
+	public function hasCpSection()
+	{
+		return true;
+	}
 
-        require __DIR__ . '/vendor/autoload.php';
+	public function init()
+	{
+		parent::init();
 
-        if (craft()->request->isCpRequest()) {
-            craft()->templates->hook('varnishpurge.prepCpTemplate', array($this, 'prepCpTemplate'));
-        }
+		require __DIR__ . '/vendor/autoload.php';
 
-        if (craft()->varnishpurge->getSetting('purgeEnabled')) {
-            $purgeRelated = craft()->varnishpurge->getSetting('purgeRelated');
+		if (craft()->request->isCpRequest()) {
+			craft()->templates->hook('varnishpurge.prepCpTemplate', array($this, 'prepCpTemplate'));
+		}
 
-            craft()->on('elements.onSaveElement', function (Event $event) use ($purgeRelated) {
-                // element saved
-                craft()->varnishpurge->purgeElement($event->params['element'], $purgeRelated);
-            });
+		if (craft()->varnishpurge->getSetting('purgeEnabled')) {
+			$purgeRelated = craft()->varnishpurge->getSetting('purgeRelated');
 
-            craft()->on('entries.onDeleteEntry', function (Event $event) use ($purgeRelated) {
-                //entry deleted
-                craft()->varnishpurge->purgeElement($event->params['entry'], $purgeRelated);
-            });
+			craft()->on('elements.onSaveElement', function (Event $event) use ($purgeRelated) {
+				// element saved
+				craft()->varnishpurge->purgeElement($event->params['element'], $purgeRelated);
+			});
 
-            craft()->on('elements.onBeforePerformAction', function(Event $event) use ($purgeRelated) {
-                //entry deleted via element action
-                $action = $event->params['action']->classHandle;
-                if ($action == 'Delete') {
-                    $elements = $event->params['criteria']->find();
-                    foreach ($elements as $element) {
-                        if ($element->elementType !== 'Entry') { return; }
-                        craft()->varnishpurge->purgeElement($element, $purgeRelated);
-                    }
-                }
-            });
-        }
-    }
+			craft()->on('entries.onDeleteEntry', function (Event $event) use ($purgeRelated) {
+				//entry deleted
+				craft()->varnishpurge->purgeElement($event->params['entry'], $purgeRelated);
+			});
 
-    public function registerCpRoutes()
-    {
-        return array(
-            'varnishpurge' => array('action' => 'Varnishpurge/index'),
-            'varnishpurge/pages' => array('action' => 'Varnishpurge_Pages/index'),
-            'varnishpurge/bindings' => array('action' => 'Varnishpurge_Bindings/index'),
-            'varnishpurge/bindings/section' => array('action' => 'Varnishpurge_Bindings/section'),
-            'varnishpurge/test/purge' => array('action' => 'Varnishpurge_Purge/test')
-        );
-    }
+			craft()->on('elements.onBeforePerformAction', function(Event $event) use ($purgeRelated) {
+				//entry deleted via element action
+				$action = $event->params['action']->classHandle;
+				if ($action == 'Delete') {
+					$elements = $event->params['criteria']->find();
+					foreach ($elements as $element) {
+						if ($element->elementType !== 'Entry') { return; }
+						craft()->varnishpurge->purgeElement($element, $purgeRelated);
+					}
+				}
+			});
+		}
+	}
 
-    public function prepCpTemplate(&$context)
-    {
-        $context['subnav'] = array();
-        // $context['subnav']['pages'] = array('label' => 'Pages', 'url' => 'varnishpurge/pages');
-        $context['subnav']['bindings'] = array('label' => 'Bindings', 'url' => 'varnishpurge/bindings');
-    }
+	public function registerCpRoutes()
+	{
+		return array(
+			'varnishpurge' => array('action' => 'Varnishpurge/index'),
+			'varnishpurge/pages' => array('action' => 'Varnishpurge_Pages/index'),
+			'varnishpurge/bindings' => array('action' => 'Varnishpurge_Bindings/index'),
+			'varnishpurge/bindings/section' => array('action' => 'Varnishpurge_Bindings/section'),
+			'varnishpurge/ban' => array('action' => 'Varnishpurge_Pages/index'),
+			'varnishpurge/ban/list' => array('action' => 'Varnishpurge_Ban/list'),
+			'varnishpurge/test/purge' => array('action' => 'Varnishpurge_Purge/test'),
+			'varnishpurge/test/ban' => array('action' => 'Varnishpurge_Ban/test'),
+			'varnishpurge/test/bindings' => array('action' => 'Varnishpurge_Bindings/test')
+		);
+	}
 
-    public function addEntryActions()
-    {
-        $actions = array();
+	public function prepCpTemplate(&$context)
+	{
+		$context['subnav'] = array();
+		// $context['subnav']['pages'] = array('label' => 'Pages', 'url' => 'varnishpurge/pages');
+		$context['subnav']['bindings'] = array('label' => 'Bindings', 'url' => 'varnishpurge/bindings');
+		$context['subnav']['logs'] = array('label' => 'Logs', 'url' => 'utils/logs/varnishpurge.log');
+	}
 
-        if (craft()->varnishpurge->getSetting('purgeEnabled')) {
-            $purgeAction = craft()->elements->getAction('Varnishpurge_PurgeCache');
+	public function addEntryActions()
+	{
+		$actions = array();
 
-            $purgeAction->setParams(array(
-              'label' => Craft::t('Purge cache'),
-            ));
+		if (craft()->varnishpurge->getSetting('purgeEnabled')) {
+			$purgeAction = craft()->elements->getAction('Varnishpurge_PurgeCache');
 
-            $actions[] = $purgeAction;
-        }
+			$purgeAction->setParams(array(
+			  'label' => Craft::t('Purge cache'),
+			));
 
-        return $actions;
-    }
+			$actions[] = $purgeAction;
+		}
 
-    public function addCategoryActions()
-    {
-        $actions = array();
+		return $actions;
+	}
 
-        if (craft()->varnishpurge->getSetting('purgeEnabled')) {
-            $purgeAction = craft()->elements->getAction('Varnishpurge_PurgeCache');
+	public function addCategoryActions()
+	{
+		$actions = array();
 
-            $purgeAction->setParams(array(
-              'label' => Craft::t('Purge cache'),
-            ));
+		if (craft()->varnishpurge->getSetting('purgeEnabled')) {
+			$purgeAction = craft()->elements->getAction('Varnishpurge_PurgeCache');
 
-            $actions[] = $purgeAction;
-        }
+			$purgeAction->setParams(array(
+			  'label' => Craft::t('Purge cache'),
+			));
 
-        return $actions;
-    }
+			$actions[] = $purgeAction;
+		}
 
-    public static function log(
-        $message,
-        $level = LogLevel::Info,
-        $override = false,
-        $debug = false
-    ) {
-        if ($debug) {
-            // Also write to screen
-            if ($level === LogLevel::Error) {
-                echo '<span style="color: red; font-weight: bold;">' . $message . "</span><br/>\n";
-            } else {
-                echo $message . "<br/>\n";
-            }
-        }
+		return $actions;
+	}
 
-        parent::log($message, $level, $override);
-    }
+	public static function log(
+		$message,
+		$level = LogLevel::Info,
+		$override = false,
+		$debug = false
+	)
+	{
+		if ($debug) {
+			// Also write to screen
+			if ($level === LogLevel::Error) {
+				echo '<span style="color: red; font-weight: bold;">' . $message . "</span><br/>\n";
+			} else {
+				echo $message . "<br/>\n";
+			}
+		}
+
+		parent::log($message, $level, $override);
+	}
 
 }

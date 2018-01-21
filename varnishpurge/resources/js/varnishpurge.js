@@ -15,6 +15,10 @@
 			new PrefixReveal($this, $('#' + $this.data('prefix-reveal')));
 		});
 
+		$('.ajax-form').each(function() {
+			new AjaxForm($(this));
+		});
+
 		new Modals();
 	}
 
@@ -32,9 +36,17 @@
 		$.post(this.$form.attr('action'), this.$form.serialize())
 			.then($.proxy(function(response) {
 				// Update output
+				var message = '';
+
+				if (response.responses) {
+					response.responses.forEach(function(response) {
+						message += response.message + '\n';
+					});
+				}
+
 				this.$output.html(
 					response.query + '\n\n' +
-					response.message
+					message
 				);
 
 				// Update CSRF token
@@ -91,6 +103,23 @@
 			event.preventDefault();
 			$target.toggleClass('revealed');
 		});
+	}
+
+	AjaxForm = function($form) {
+		this.$output = $($form.data('output'));
+		this.$form = $form;
+		this.$form.submit($.proxy(this.submit, this));
+	}
+
+	AjaxForm.prototype.submit = function(event) {
+		event.preventDefault();
+
+		this.$output.html('');
+
+		$.post(this.$form.attr('action'), this.$form.serialize())
+			.then($.proxy(function (response) {
+				this.$output.html(response);
+			}, this));
 	}
 
 	new VarnishPurge();

@@ -6,13 +6,13 @@ class Varnishpurge_BindingsService extends BaseApplicationComponent
     /**
      * Returns the active BindingsRecord bindings for a section, grouped by type
      */
-    public function getBindings(int $sectionId, int $typeId = 0, string $bindType = '') {
+    public function getBindings(int $sectionId, int $typeId = 0, $bindType = '') {
         $attrs = [
             'sectionId' => $sectionId
         ];
 
         if ($typeId !== 0) $attrs['typeId'] = $typeId;
-        if ($bindType !== '') $attrs['bindType'] = $bindType;
+        if (!empty($bindType)) $attrs['bindType'] = $bindType;
 
         return Varnishpurge_BindingsRecord::model()->findAllByAttributes($attrs);
     }

@@ -21,7 +21,6 @@
 				</div>
 
 				<div class="purgeban-query">
-					{# <span class="prefix">{{ craft.config.get('varnishUrl', 'varnishpurge') }}</span> #}
 					<div class="select">
 						<select name="host">
 							<option value="">{{ 'Send to all Varnish hosts'|t }}</option>
@@ -44,11 +43,10 @@
 		<form id="frm-ban" class="purgeban">
 			<fieldset>
 				<div class="heading">
-					<label id="title-label" class="required" for="ban-query">Query</label>
+					<label id="title-label" class="required" for="ban-query">Full query</label>
 				</div>
 
 				<div class="purgeban-query">
-					{# <span class="prefix" id="ban-prefix"><span class="inner">{{ craft.config.get('banPrefix', 'varnishpurge') }}</span></span> #}
 					<div class="select">
 						<select name="host">
 							<option value="">{{ 'Send to all Varnish hosts'|t }}</option>
@@ -62,12 +60,7 @@
 					<input type="submit" class="btn submit" value="Send Ban Query">
 				</div>
 
-				<div class="template-keys">
-					<b>Template keys available:</b>
-					<ul>
-						<li>${hostName}</li>
-					</ul>
-				</div>
+				{% include 'varnishpurge/fragments/bankeys' %}
 			</fieldset>
 
 			<input type="hidden" name="purgeban_type" value="ban">

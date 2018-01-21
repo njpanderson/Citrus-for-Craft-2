@@ -66,6 +66,7 @@ class Varnishpurge_BanController extends BaseController
 					$this->_socket->connect();
 					$variables['hostList'][$id]['banList'] = $this->_socket->getBanList();
 					$variables['hostList'][$id]['hostName'] = $host['hostName'];
+					$variables['hostList'][$id]['id'] = $id;
 				} catch (\Exception $e) {
 					$variables['hostList'][$id]['adminError'] = $e->getMessage();
 				}

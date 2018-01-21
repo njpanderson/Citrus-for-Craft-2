@@ -162,9 +162,11 @@ class Varnishpurge_BanHelper
 
 		// run through parsing steps
 		$query = str_replace(array(
-			'${hostname}'
+			'${hostname}',
+			'${baseUrl}'
 		), array(
-			$host['hostName']
+			$host['hostName'],
+			$host['url']
 		), $query);
 
 		$query = str_replace('\\', '\\\\', $query);

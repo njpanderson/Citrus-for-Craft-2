@@ -30,8 +30,10 @@ class Varnishpurge_BindingsController extends BaseController
 		$bansSupported = craft()->varnishpurge->getSetting('bansSupported');
 		$bindTypes = array('PURGE' => 'PURGE');
 
-		if ($bansSupported) $bindTypes['BAN'] = 'BAN';
-		if ($bansSupported) $bindTypes['FULLBAN'] = 'FULLBAN';
+		if ($bansSupported) {
+			$bindTypes['BAN'] = 'BAN';
+			$bindTypes['FULLBAN'] = 'FULLBAN';
+		}
 
 		$variables = array(
 			'title' => 'Varnish Purge - Bindings',
@@ -39,7 +41,8 @@ class Varnishpurge_BindingsController extends BaseController
 			'bindTypes' => $bindTypes,
 			'tabs' => [],
 			'bindings' => [],
-			'fullPageForm' => true
+			'fullPageForm' => true,
+			'bansSupported' => $bansSupported
 		);
 
 		if (!empty($variables['sectionId'])) {

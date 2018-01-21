@@ -17,7 +17,7 @@ return array(
     'purgeRelated' => true,
     'logAll' => 0,
     'purgeUriMap' => [],
-    'bansSupported' => true,
+    'bansSupported' => false,
     'adminIP' => '',
     'adminPort' => '',
     'adminSecret' => '',

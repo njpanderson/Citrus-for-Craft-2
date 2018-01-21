@@ -39,40 +39,42 @@
 		</form>
 	</div>
 
-	<div id="tab-ban" class="hidden">
-		<form id="frm-ban" class="purgeban">
-			<fieldset>
-				<div class="heading">
-					<label id="title-label" class="required" for="ban-query">Full query</label>
-				</div>
-
-				<div class="purgeban-query">
-					<div class="select">
-						<select name="host">
-							<option value="">{{ 'Send to all Varnish hosts'|t }}</option>
-							{% for id, host in hosts %}
-							<option value="{{ id }}">{{ id }} ({{ host.hostName }})</option>
-							{% endfor %}
-						</select>
+	{% if bansSupported %}
+		<div id="tab-ban" class="hidden">
+			<form id="frm-ban" class="purgeban">
+				<fieldset>
+					<div class="heading">
+						<label id="title-label" class="required" for="ban-query">Full query</label>
 					</div>
-					{# <a href="#" data-prefix-reveal="ban-prefix" class="prefix-reveal">&hellip;</a> #}
-					<input class="text" type="text" id="ban-query" name="query" autofocus="" autocomplete="off" placeholder="req.http.host == ${hostname} &amp;&amp; req.url ~ .*" value="req.http.host == ${hostname} &amp;&amp; req.url ~ .*" class="">
-					<input type="submit" class="btn submit" value="Send Ban Query">
-				</div>
 
-				{% include 'varnishpurge/fragments/bankeys' %}
-			</fieldset>
+					<div class="purgeban-query">
+						<div class="select">
+							<select name="host">
+								<option value="">{{ 'Send to all Varnish hosts'|t }}</option>
+								{% for id, host in hosts %}
+								<option value="{{ id }}">{{ id }} ({{ host.hostName }})</option>
+								{% endfor %}
+							</select>
+						</div>
+						{# <a href="#" data-prefix-reveal="ban-prefix" class="prefix-reveal">&hellip;</a> #}
+						<input class="text" type="text" id="ban-query" name="query" autofocus="" autocomplete="off" placeholder="req.http.host == ${hostname} &amp;&amp; req.url ~ .*" value="req.http.host == ${hostname} &amp;&amp; req.url ~ .*" class="">
+						<input type="submit" class="btn submit" value="Send Ban Query">
+					</div>
 
-			<input type="hidden" name="purgeban_type" value="ban">
-			<input type="hidden" name="{{ craft.config.csrfTokenName }}" value="{{ craft.request.csrfToken }}">
-		</form>
-	</div>
+					{% include 'varnishpurge/fragments/bankeys' %}
+				</fieldset>
+
+				<input type="hidden" name="purgeban_type" value="ban">
+				<input type="hidden" name="{{ craft.config.csrfTokenName }}" value="{{ craft.request.csrfToken }}">
+			</form>
+		</div>
+	{% endif %}
 
 	<div id="purgeban-output">
-		<pre><code class="output">Purge/ban output</code></pre>
+		<pre><code class="output">Output</code></pre>
 	</div>
 
-	{% if adminHosts|length > 0 %}
+	{% if adminHosts|length > 0 and bansSupported %}
 	<div class="dashboard">
 		<div class="banlist">
 			<form id="frm-banlist" action="/admin/varnishpurge/ban/list" method="post" class="ajax-form" data-output="#banlist-output">

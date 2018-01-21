@@ -20,21 +20,27 @@ class VarnishpurgeController extends BaseController
 	 */
 	public function actionIndex()
 	{
+		$bansSupported = craft()->varnishpurge->getSetting('bansSupported');
+
 		$variables = [
 			'title' => 'Varnish Purge',
 			'tabs' => [
 				0 => [
 					'label' => 'Purge',
 					'url' => '#tab-purge'
-				],
-				1 => [
-					'label' => 'Ban',
-					'url' => '#tab-ban'
 				]
 			],
+			'bansSupported' => $bansSupported,
 			'hosts' => $this->getVarnishHosts(),
 			'adminHosts' => $this->getVarnishAdminHosts()
 		];
+
+		if ($bansSupported) {
+			array_push($variables['tabs'], [
+				'label' => 'Ban',
+				'url' => '#tab-ban'
+			]);
+		}
 
 		if (craft()->request->getPost('purgeban_type')) {
 			return $this->actionPurgeBan();

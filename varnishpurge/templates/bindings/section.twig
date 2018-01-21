@@ -42,6 +42,8 @@
 			</div>
 		{% endfor %}
 
-		{% include 'varnishpurge/fragments/bankeys.twig' %}
+		{% if bansSupported %}
+			{% include 'varnishpurge/fragments/bankeys.twig' %}
+		{% endif %}
 	{% endif %}
 {% endset %}

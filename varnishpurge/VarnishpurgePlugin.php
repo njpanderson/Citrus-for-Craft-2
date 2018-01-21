@@ -118,6 +118,8 @@ class VarnishpurgePlugin extends BasePlugin
 			'varnishpurge/pages' => array('action' => 'Varnishpurge_Pages/index'),
 			'varnishpurge/bindings' => array('action' => 'Varnishpurge_Bindings/index'),
 			'varnishpurge/bindings/section' => array('action' => 'Varnishpurge_Bindings/section'),
+			'varnishpurge/ban' => array('action' => 'Varnishpurge_Pages/index'),
+			'varnishpurge/ban/list' => array('action' => 'Varnishpurge_Ban/list'),
 			'varnishpurge/test/purge' => array('action' => 'Varnishpurge_Purge/test'),
 			'varnishpurge/test/ban' => array('action' => 'Varnishpurge_Ban/test'),
 			'varnishpurge/test/bindings' => array('action' => 'Varnishpurge_Bindings/test')

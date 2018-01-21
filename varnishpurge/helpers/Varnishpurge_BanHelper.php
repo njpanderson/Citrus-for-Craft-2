@@ -17,7 +17,7 @@ class Varnishpurge_BanHelper
 
 		foreach ($this->getVarnishHosts() as $id => $host) {
 			if ($id === $ban['hostId'] || $ban['hostId'] === null) {
-				if (craft()->varnishpurge->canDoAdminBans($host)) {
+				if ($host['canDoAdminBans']) {
 					array_push(
 						$response,
 						$this->sendAdmin($id, $host, $ban['query'], $ban['full'], $debug)

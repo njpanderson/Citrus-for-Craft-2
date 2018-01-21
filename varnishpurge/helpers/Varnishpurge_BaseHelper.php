@@ -10,6 +10,11 @@ trait Varnishpurge_BaseHelper
 		return (!empty($value) ? $value : $default);
 	}
 
+	public function getParamWithDefault($var, $default = null) {
+		$value = craft()->request->getParam($var);
+		return (!empty($value) ? $value : $default);
+	}
+
    protected function hash($str)
 	{
       return hash($this->hashAlgo, $str);
@@ -79,22 +84,30 @@ trait Varnishpurge_BaseHelper
 
 		if (!is_array($hosts)) {
 			// Hosts is not an array - make into one using the global settings
+			$canDoAdminBans = (
+				!empty(craft()->varnishpurge->getSetting('adminIP')) &&
+				!empty(craft()->varnishpurge->getSetting('adminPort')) &&
+				!empty(craft()->varnishpurge->getSetting('adminSecret'))
+			);
+
 			return array(
 				'public' => array(
 					'url' => craft()->varnishpurge->getSetting('varnishUrl'),
 					'hostName' => craft()->varnishpurge->getSetting('varnishHostName'),
 					'adminIP' => craft()->varnishpurge->getSetting('adminIP'),
 					'adminPort' => craft()->varnishpurge->getSetting('adminPort'),
-					'adminSecret' => craft()->varnishpurge->getSetting('adminSecret')
-					// 'banPrefix' => craft()->varnishpurge->getSetting('banPrefix')
+					'adminSecret' => craft()->varnishpurge->getSetting('adminSecret'),
+					'canDoAdminBans' => $canDoAdminBans
 				)
 			);
 		} else {
 			// Gather hosts and sanity check
 			foreach ($hosts as &$host) {
-				// if (!isset($host['banPrefix'])) {
-				// 	$host['banPrefix'] = craft()->varnishpurge->getSetting('banPrefix');
-				// }
+				$host['canDoAdminBans'] = (
+					!empty($host['adminIP']) &&
+					!empty($host['adminPort']) &&
+					!empty($host['adminSecret'])
+				);
 
 				if (!$host['url']) {
 					$host['url'] = array_fill_keys(array(craft()->language), craft()->getSiteUrl());
@@ -108,6 +121,15 @@ trait Varnishpurge_BaseHelper
 		}
 
 		return $hosts;
+	}
+
+	protected function getVarnishAdminHosts()
+	{
+		$hosts = $this->getVarnishHosts();
+
+		return array_filter($hosts, function($host) {
+			return $host['canDoAdminBans'];
+		});
 	}
 
 	protected function parseGuzzleResponse($httpRequest, $httpResponse, $showUri = false) {

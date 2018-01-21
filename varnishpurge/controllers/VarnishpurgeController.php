@@ -32,16 +32,9 @@ class VarnishpurgeController extends BaseController
 					'url' => '#tab-ban'
 				]
 			],
-			'canDoAdminBans' => false,
-			'hosts' => $this->getVarnishHosts()
+			'hosts' => $this->getVarnishHosts(),
+			'adminHosts' => $this->getVarnishAdminHosts()
 		];
-
-		// if (craft()->varnishpurge->canDoAdminBans()) {
-		// TODO: - Send host (in a loop!?)
-		if (false) {
-			$this->addVarnishAdminData($variables);
-			$variables['canDoAdminBans'] = true;
-		}
 
 		if (craft()->request->getPost('purgeban_type')) {
 			return $this->actionPurgeBan();
@@ -82,21 +75,4 @@ class VarnishpurgeController extends BaseController
 			$this->redirect('varnishpurge');
 		}
 	}
-
-	private function addVarnishAdminData(&$variables)
-	{
-		$this->socket = new VarnishConnect\Socket(
-			craft()->varnishpurge->getSetting('adminIP'),
-			craft()->varnishpurge->getSetting('adminPort'),
-			craft()->varnishpurge->getSetting('adminSecret')
-		);
-
-		try {
-			$this->socket->connect();
-			$variables['banlist'] = $this->socket->getBanList();
-		} catch (\Exception $e) {
-			$variables['admin_error'] = $e->getMessage();
-		}
-	}
-
 }

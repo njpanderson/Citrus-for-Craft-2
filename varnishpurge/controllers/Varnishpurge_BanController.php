@@ -1,6 +1,8 @@
 <?php
 namespace Craft;
 
+use \njpanderson\VarnishConnect;
+
 class Varnishpurge_BanController extends BaseController
 {
 	use Varnishpurge_BaseHelper;
@@ -8,6 +10,7 @@ class Varnishpurge_BanController extends BaseController
 	private $_query;
 	private $_isFullQuery;
 	private $_hostId;
+	private $_socket;
 
 	function __construct()
 	{
@@ -40,5 +43,35 @@ class Varnishpurge_BanController extends BaseController
 
 		$task = craft()->tasks->createTask('Varnishpurge_Ban', null, $settings);
 		craft()->tasks->runTask($task);
+	}
+
+	public function actionList()
+	{
+		$variables = array(
+			'hostList' => array()
+		);
+		$hostId = $this->getPostWithDefault('host', null);
+
+		foreach ($this->getVarnishHosts() as $id => $host) {
+			if (
+				($id === $hostId || $hostId === null) && $host['canDoAdminBans']
+			) {
+				$this->_socket = new VarnishConnect\Socket(
+					$host['adminIP'],
+					$host['adminPort'],
+					$host['adminSecret']
+				);
+
+				try {
+					$this->_socket->connect();
+					$variables['hostList'][$id]['banList'] = $this->_socket->getBanList();
+					$variables['hostList'][$id]['hostName'] = $host['hostName'];
+				} catch (\Exception $e) {
+					$variables['hostList'][$id]['adminError'] = $e->getMessage();
+				}
+			}
+		}
+
+		return $this->renderTemplate('varnishpurge/fragments/banlist', $variables);
 	}
 }

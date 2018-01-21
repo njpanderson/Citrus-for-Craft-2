@@ -398,13 +398,6 @@ class VarnishpurgeService extends BaseApplicationComponent
         return craft()->config->get($name, 'varnishpurge');
     }
 
-    public function canDoAdminBans($host)
-    {
-        return !empty($host['adminIP']) &&
-			!empty($host['adminPort']) &&
-			!empty($host['adminSecret']);
-    }
-
     private function _uniqueUris($uris) {
         $found = array();
 

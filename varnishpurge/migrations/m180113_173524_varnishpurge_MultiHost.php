@@ -4,7 +4,7 @@ namespace Craft;
 /**
  * The class name is the UTC timestamp in the format of mYYMMDD_HHMMSS_pluginHandle_migrationName
  */
-class m180113_173524_varnishpurge_LocaleSupport extends BaseMigration
+class m180113_173524_varnishpurge_MultiHost extends BaseMigration
 {
 	/**
 	 * Any migration code in here is wrapped inside of a transaction.

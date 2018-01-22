@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-class VarnishpurgeService extends BaseApplicationComponent
+class CitrusService extends BaseApplicationComponent
 {
     public $settings = array();
 
@@ -44,15 +44,15 @@ class VarnishpurgeService extends BaseApplicationComponent
                     $uris = array_merge($uris, $this->getBindingQueries(
                         $element->section->id,
                         $element->type->id,
-                        Varnishpurge_BindingsRecord::TYPE_PURGE
+                        Citrus_BindingsRecord::TYPE_PURGE
                     ));
 
                     $bans = array_merge($bans, $this->getBindingQueries(
                         $element->section->id,
                         $element->type->id,
                         array(
-                            Varnishpurge_BindingsRecord::TYPE_BAN,
-                            Varnishpurge_BindingsRecord::TYPE_FULLBAN
+                            Citrus_BindingsRecord::TYPE_BAN,
+                            Citrus_BindingsRecord::TYPE_FULLBAN
                         )
                     ));
                 }
@@ -64,7 +64,7 @@ class VarnishpurgeService extends BaseApplicationComponent
             if (count($uris) > 0) {
                 array_push(
                     $tasks,
-                    $this->_makeTask('Varnishpurge_Purge', array(
+                    $this->_makeTask('Citrus_Purge', array(
                         'uris' => $uris,
                         'debug' => $debug
                     ))
@@ -74,7 +74,7 @@ class VarnishpurgeService extends BaseApplicationComponent
             if (count($bans) > 0) {
                 array_push(
                     $tasks,
-                    $this->_makeTask('Varnishpurge_Ban', array(
+                    $this->_makeTask('Citrus_Ban', array(
                         'bans' => $bans,
                         'debug' => $debug
                     ))
@@ -87,19 +87,19 @@ class VarnishpurgeService extends BaseApplicationComponent
 
     public function purgeURI($uri, $hostId = null)
     {
-        $purge = new Varnishpurge_PurgeHelper;
+        $purge = new Citrus_PurgeHelper;
 
         return $purge->purge($this->makeVarnishUri(
             $uri,
             null,
-            VarnishpurgePlugin::URI_ELEMENT,
+            CitrusPlugin::URI_ELEMENT,
             $hostId
         ));
     }
 
     public function banQuery($query, $isFullQuery = false, $hostId = null)
     {
-        $ban = new Varnishpurge_BanHelper;
+        $ban = new Citrus_BanHelper;
 
         return $ban->ban(array(
             'query' => $query,
@@ -114,7 +114,7 @@ class VarnishpurgeService extends BaseApplicationComponent
     public function getBindingQueries($sectionId, $typeId, $bindType = null)
     {
         $queries = array();
-        $bindings = craft()->varnishpurge_bindings->getBindings(
+        $bindings = craft()->citrus_bindings->getBindings(
             $sectionId,
             $typeId,
             $bindType
@@ -122,20 +122,20 @@ class VarnishpurgeService extends BaseApplicationComponent
 
         foreach ($bindings as $binding) {
             if (
-                $binding->bindType === Varnishpurge_BindingsRecord::TYPE_PURGE &&
-                $bindType === Varnishpurge_BindingsRecord::TYPE_PURGE
+                $binding->bindType === Citrus_BindingsRecord::TYPE_PURGE &&
+                $bindType === Citrus_BindingsRecord::TYPE_PURGE
                 ) {
                 // A single PURGE type is requested
                 $queries[] = $this->makeVarnishUri(
                     $binding->query,
                     null,
-                    VarnishpurgePlugin::URI_BINDING
+                    CitrusPlugin::URI_BINDING
                 );
             } else if (is_array($bindType)) {
                 // Multiple bind types are requested
                 $queries[] = array(
                     'query' => $binding->query,
-                    'full' => ($binding->bindType === Varnishpurge_BindingsRecord::TYPE_FULLBAN)
+                    'full' => ($binding->bindType === Citrus_BindingsRecord::TYPE_FULLBAN)
                 );
             } else {
                 // One bind type is requested (but not purge)
@@ -149,7 +149,7 @@ class VarnishpurgeService extends BaseApplicationComponent
     public function makeVarnishUri(
         $uri,
         $locale = null,
-        $type = VarnishpurgePlugin::URI_ELEMENT,
+        $type = CitrusPlugin::URI_ELEMENT,
         $hostId = null
     )
     {
@@ -259,13 +259,13 @@ class VarnishpurgeService extends BaseApplicationComponent
     private function _getTagUris($elementId)
     {
         $uris = array();
-        $tagUris = craft()->varnishpurge_uri->getAllURIsByEntryId($elementId);
+        $tagUris = craft()->citrus_uri->getAllURIsByEntryId($elementId);
 
         foreach ($tagUris as $tagUri) {
             $uris[] = $this->makeVarnishUri(
                 $tagUri->uri,
                 $tagUri->locale,
-                VarnishpurgePlugin::URI_TAG
+                CitrusPlugin::URI_TAG
             );
             $tagUri->delete();
         }
@@ -336,7 +336,7 @@ class VarnishpurgeService extends BaseApplicationComponent
             $original_settings = $task->settings;
 
             switch ($taskName) {
-            case 'Varnishpurge_Purge':
+            case 'Citrus_Purge':
                 // Ensure 'uris' setting is an array
                 if (!is_array($original_settings['uris'])) {
                     $original_settings['uris'] = array($original_settings['uris']);
@@ -352,7 +352,7 @@ class VarnishpurgeService extends BaseApplicationComponent
                 $original_settings['uris'] = $this->_uniqueUris($original_settings['uris']);
                 break;
 
-            case 'Varnishpurge_Ban':
+            case 'Citrus_Ban':
                 // Merge with existing bans
                 $original_settings['bans'] = array_merge(
                     $original_settings['bans'],
@@ -368,18 +368,18 @@ class VarnishpurgeService extends BaseApplicationComponent
             $task->settings = $original_settings;
             craft()->tasks->saveTask($task, false);
 
-            VarnishpurgePlugin::log(
+            CitrusPlugin::log(
                 'Appended task (' . $taskName . ')',
                 LogLevel::Info,
-                craft()->varnishpurge->getSetting('logAll')
+                craft()->citrus->getSetting('logAll')
             );
 
             return $task;
         } else {
-            VarnishpurgePlugin::log(
+            CitrusPlugin::log(
                 'Created task (' . $taskName . ')',
                 LogLevel::Info,
-                craft()->varnishpurge->getSetting('logAll')
+                craft()->citrus->getSetting('logAll')
             );
 
             return craft()->tasks->createTask($taskName, null, $settings);
@@ -395,7 +395,7 @@ class VarnishpurgeService extends BaseApplicationComponent
      */
     public function getSetting($name)
     {
-        return craft()->config->get($name, 'varnishpurge');
+        return craft()->config->get($name, 'citrus');
     }
 
     private function _uniqueUris($uris) {

@@ -1,4 +1,4 @@
-{% extends "varnishpurge/_layouts/cp" %}
+{% extends "citrus/_layouts/cp" %}
 
 {% set selectedSubnavItem = "bindings" %}
 
@@ -27,7 +27,7 @@
 			<tr>
 				<td>{{ section.craftSection.name }}</td>
 				<td>{{ section.bindings }}</td>
-				<td><a href="{{ url('varnishpurge/bindings/section/', { sectionId: section.craftSection.id }) }}">{{ 'Edit bindings'|t }}</a></td>
+				<td><a href="{{ url('citrus/bindings/section/', { sectionId: section.craftSection.id }) }}">{{ 'Edit bindings'|t }}</a></td>
 			</tr>
 		{% endfor %}
 		</tbody>

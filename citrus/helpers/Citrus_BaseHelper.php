@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-trait Varnishpurge_BaseHelper
+trait Citrus_BaseHelper
 {
    public $hashAlgo = 'crc32';
 
@@ -80,23 +80,23 @@ trait Varnishpurge_BaseHelper
 
 	protected function getVarnishHosts()
 	{
-		$hosts = craft()->varnishpurge->getSetting('varnishHosts');
+		$hosts = craft()->citrus->getSetting('varnishHosts');
 
 		if (!is_array($hosts) || !empty($hosts)) {
 			// Hosts is not an array - make into one using the global settings
 			$canDoAdminBans = (
-				!empty(craft()->varnishpurge->getSetting('adminIP')) &&
-				!empty(craft()->varnishpurge->getSetting('adminPort')) &&
-				!empty(craft()->varnishpurge->getSetting('adminSecret'))
+				!empty(craft()->citrus->getSetting('adminIP')) &&
+				!empty(craft()->citrus->getSetting('adminPort')) &&
+				!empty(craft()->citrus->getSetting('adminSecret'))
 			);
 
 			$hosts = [
 				'public' => [
-					'url' => craft()->varnishpurge->getSetting('varnishUrl'),
-					'hostName' => craft()->varnishpurge->getSetting('varnishHostName'),
-					'adminIP' => craft()->varnishpurge->getSetting('adminIP'),
-					'adminPort' => craft()->varnishpurge->getSetting('adminPort'),
-					'adminSecret' => craft()->varnishpurge->getSetting('adminSecret'),
+					'url' => craft()->citrus->getSetting('varnishUrl'),
+					'hostName' => craft()->citrus->getSetting('varnishHostName'),
+					'adminIP' => craft()->citrus->getSetting('adminIP'),
+					'adminPort' => craft()->citrus->getSetting('adminPort'),
+					'adminSecret' => craft()->citrus->getSetting('adminSecret'),
 					'canDoAdminBans' => $canDoAdminBans
 				]
 			];
@@ -133,8 +133,8 @@ trait Varnishpurge_BaseHelper
 	}
 
 	protected function parseGuzzleResponse($httpRequest, $httpResponse, $showUri = false) {
-		$response = new Varnishpurge_ResponseHelper(
-			Varnishpurge_ResponseHelper::CODE_OK
+		$response = new Citrus_ResponseHelper(
+			Citrus_ResponseHelper::CODE_OK
 		);
 
 		if ($showUri) {
@@ -161,8 +161,8 @@ trait Varnishpurge_BaseHelper
 
 	protected function parseGuzzleError($hostId, $e, $debug = false)
 	{
-		$response = new Varnishpurge_ResponseHelper(
-			Varnishpurge_ResponseHelper::CODE_ERROR_GENERAL
+		$response = new Citrus_ResponseHelper(
+			Citrus_ResponseHelper::CODE_ERROR_GENERAL
 		);
 
 		if ($e instanceof \Guzzle\Http\Exception\BadResponseException) {
@@ -171,17 +171,17 @@ trait Varnishpurge_BaseHelper
 					' (' . $e->getResponse()->getStatusCode() . ' - ' .
 					$e->getResponse()->getReasonPhrase() . ')';
 
-			VarnishpurgePlugin::log(
+			CitrusPlugin::log(
 				$response->message,
 				LogLevel::Error,
 				true,
 				$debug
 			);
 		} else if ($e instanceof \Guzzle\Http\Exception\CurlException) {
-			$response->code = Varnishpurge_ResponseHelper::CODE_ERROR_CURL;
+			$response->code = Citrus_ResponseHelper::CODE_ERROR_CURL;
 			$response->message = 'cURL Error on "' . $hostId . '" URL "' . $e->getMessage();
 
-			VarnishpurgePlugin::log(
+			CitrusPlugin::log(
 				$response->message,
 				LogLevel::Error,
 				true,
@@ -190,7 +190,7 @@ trait Varnishpurge_BaseHelper
 		} else if ($e instanceof \Exception) {
 			$response->message = 'Error on "' . $hostId . '" URL "' . $e->getMessage();
 
-			VarnishpurgePlugin::log(
+			CitrusPlugin::log(
 				$response->message,
 				LogLevel::Error,
 				true,

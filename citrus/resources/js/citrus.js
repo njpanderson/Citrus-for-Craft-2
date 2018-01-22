@@ -1,11 +1,11 @@
 (function($, undefined) {
-	var VarnishPurge, PurgeBan, Modals;
+	var Citrus, PurgeBan, Modals;
 
-	VarnishPurge = function() {
+	Citrus = function() {
 		this.init();
 	}
 
-	VarnishPurge.prototype.init = function () {
+	Citrus.prototype.init = function () {
 		$('form.purgeban').each(function () {
 			new PurgeBan(this, $('#purgeban-output .output'));
 		});
@@ -122,5 +122,5 @@
 			}, this));
 	}
 
-	new VarnishPurge();
+	new Citrus();
 }(window.jQuery));

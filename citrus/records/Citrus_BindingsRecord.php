@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-class Varnishpurge_BindingsRecord extends BaseRecord
+class Citrus_BindingsRecord extends BaseRecord
 {
     const TYPE_PURGE = 'PURGE';
     const TYPE_BAN = 'BAN';
@@ -9,7 +9,7 @@ class Varnishpurge_BindingsRecord extends BaseRecord
 
     public function getTableName()
     {
-        return 'varnishpurge_bindings';
+        return 'citrus_bindings';
     }
 
     protected function defineAttributes()

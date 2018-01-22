@@ -1,4 +1,4 @@
-{% extends "varnishpurge/_layouts/cp" %}
+{% extends "citrus/_layouts/cp" %}
 
 {% set selectedSubnavItem = "bindings" %}
 
@@ -6,7 +6,7 @@
 
 {% block saveButton %}
 	{% if section is defined %}
-		<input type="hidden" name="action" value="varnishpurge/bindings/save">
+		<input type="hidden" name="action" value="citrus/bindings/save">
 		<input type="hidden" name="sectionId" value="{{ section.id }}">
 
 		<div class="btngroup">
@@ -43,7 +43,7 @@
 		{% endfor %}
 
 		{% if bansSupported %}
-			{% include 'varnishpurge/fragments/bankeys.twig' with locales %}
+			{% include 'citrus/fragments/bankeys.twig' with locales %}
 		{% endif %}
 	{% endif %}
 {% endset %}

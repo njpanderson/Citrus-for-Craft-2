@@ -1,11 +1,11 @@
 <?php
 namespace Craft;
 
-class Varnishpurge_EntryRecord extends BaseRecord
+class Citrus_EntryRecord extends BaseRecord
 {
     public function getTableName()
     {
-        return 'varnishpurge_entries';
+        return 'citrus_entries';
     }
 
     protected function defineAttributes()

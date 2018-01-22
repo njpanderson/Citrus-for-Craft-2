@@ -1,9 +1,9 @@
 <?php
 namespace Craft;
 
-class Varnishpurge_PurgeHelper
+class Citrus_PurgeHelper
 {
-	use Varnishpurge_BaseHelper;
+	use Citrus_BaseHelper;
 
    public function purge(array $uri, $debug = false)
 	{
@@ -27,8 +27,8 @@ class Varnishpurge_PurgeHelper
 	private function sendPurge($id, $host, $url, $debug = false)
 	{
 
-		$response = new Varnishpurge_ResponseHelper(
-			Varnishpurge_ResponseHelper::CODE_OK
+		$response = new Citrus_ResponseHelper(
+			Citrus_ResponseHelper::CODE_OK
 		);
 
 		$client = new \Guzzle\Http\Client();
@@ -37,10 +37,10 @@ class Varnishpurge_PurgeHelper
 			'Host' => $host
 		);
 
-		VarnishpurgePlugin::log(
+		CitrusPlugin::log(
 			'Adding "' . $id . '" url to purge: ' . $url,
 			LogLevel::Info,
-			craft()->varnishpurge->getSetting('logAll'),
+			craft()->citrus->getSetting('logAll'),
 			$debug
 		);
 

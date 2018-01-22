@@ -1,9 +1,9 @@
 <?php
 namespace Craft;
 
-class Varnishpurge_uriService extends BaseApplicationComponent
+class Citrus_uriService extends BaseApplicationComponent
 {
-    use Varnishpurge_BaseHelper;
+    use Citrus_BaseHelper;
 
     public function saveURIEntry(string $pageUri, int $entryId, string $locale)
     {
@@ -21,12 +21,12 @@ class Varnishpurge_uriService extends BaseApplicationComponent
         $this->saveURI($uri);
 
         // Save Entry record
-        $entry = new Varnishpurge_EntryRecord();
+        $entry = new Citrus_EntryRecord();
 
         $entry->uriId = $uri->id;
         $entry->entryId = $entryId;
 
-        craft()->varnishpurge_entry->saveEntry($entry);
+        craft()->citrus_entry->saveEntry($entry);
     }
 
     public function deleteURI(string $pageUri)
@@ -45,7 +45,7 @@ class Varnishpurge_uriService extends BaseApplicationComponent
 
     public function getURI($id)
     {
-        return Varnishpurge_uriRecord::model()->findAllByPk($id);
+        return Citrus_uriRecord::model()->findAllByPk($id);
     }
 
     public function getURIByURIHash($uriHash = '')
@@ -54,7 +54,7 @@ class Varnishpurge_uriService extends BaseApplicationComponent
             throw new Exception('$uriHash cannot be blank.');
         }
 
-        $uri = Varnishpurge_uriRecord::model()->findByAttributes(array(
+        $uri = Citrus_uriRecord::model()->findByAttributes(array(
           'uriHash' => $uriHash
         ));
 
@@ -62,12 +62,12 @@ class Varnishpurge_uriService extends BaseApplicationComponent
             return $uri;
         }
 
-        return new Varnishpurge_uriRecord();
+        return new Citrus_uriRecord();
     }
 
     public function getAllURIsByEntryId(int $entryId)
     {
-        return Varnishpurge_uriRecord::model()->with(array(
+        return Citrus_uriRecord::model()->with(array(
             'entries' => array(
                 'select' => false,
                 'condition' => 'entryId = ' . $entryId
@@ -76,7 +76,7 @@ class Varnishpurge_uriService extends BaseApplicationComponent
     }
 
     public function saveURI(
-        Varnishpurge_uriRecord $uri
+        Citrus_uriRecord $uri
     )
     {
         $uri->save();

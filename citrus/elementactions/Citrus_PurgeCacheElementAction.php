@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-class Varnishpurge_PurgeCacheElementAction extends BaseElementAction
+class Citrus_PurgeCacheElementAction extends BaseElementAction
 {
     public function getName()
     {
@@ -15,9 +15,9 @@ class Varnishpurge_PurgeCacheElementAction extends BaseElementAction
 
     public function performAction(ElementCriteriaModel $criteria)
     {
-			if (craft()->varnishpurge->getSetting('purgeEnabled')) {
+			if (craft()->citrus->getSetting('purgeEnabled')) {
 				$elements = $criteria->find();
-				craft()->varnishpurge->purgeElements($elements, false);
+				craft()->citrus->purgeElements($elements, false);
 				$this->setMessage(Craft::t('Varnish cache was purged.'));
 				return true;
 			}

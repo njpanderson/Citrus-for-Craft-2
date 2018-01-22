@@ -1,9 +1,9 @@
 <?php
 namespace Craft;
 
-class VarnishpurgeVariable extends BaseApplicationComponent
+class CitrusVariable extends BaseApplicationComponent
 {
-    use Varnishpurge_BaseHelper;
+    use Citrus_BaseHelper;
 
     /**
      * Gets the client IP, accounting for request being routed through Varnish (HTTP_X_FORWARDED_FOR header set)
@@ -43,10 +43,10 @@ class VarnishpurgeVariable extends BaseApplicationComponent
         $criteria['uriHash'] = $this->hash($criteria['uri']);
 
         if ($criteria['entryId'] === 0) {
-            throw new Exception('Entry ID in varnishpurge.tag cannot be zero or empty');
+            throw new Exception('Entry ID in citrus.tag cannot be zero or empty');
         }
 
-        craft()->varnishpurge_uri->saveURIEntry(
+        craft()->citrus_uri->saveURIEntry(
             $criteria['uri'],
             $criteria['entryId'],
             craft()->language
@@ -57,7 +57,7 @@ class VarnishpurgeVariable extends BaseApplicationComponent
 
     public function deleteTag()
     {
-        craft()->varnishpurge_uri->deleteURI(craft()->request->url);
+        craft()->citrus_uri->deleteURI(craft()->request->url);
     }
 
 }

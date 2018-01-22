@@ -1,4 +1,4 @@
-{% extends "varnishpurge/_layouts/cp" %}
+{% extends "citrus/_layouts/cp" %}
 
 {% set selectedSubnavItem = "" %}
 
@@ -61,7 +61,7 @@
 						<input type="submit" class="btn submit" value="Send Ban Query">
 					</div>
 
-					{% include 'varnishpurge/fragments/bankeys' with locales %}
+					{% include 'citrus/fragments/bankeys' with locales %}
 				</fieldset>
 
 				<input type="hidden" name="purgeban_type" value="ban">
@@ -77,7 +77,7 @@
 	{% if adminHosts|length > 0 and bansSupported %}
 	<div class="dashboard">
 		<div class="banlist">
-			<form id="frm-banlist" action="/admin/varnishpurge/ban/list" method="post" class="ajax-form" data-output="#banlist-output">
+			<form id="frm-banlist" action="/admin/citrus/ban/list" method="post" class="ajax-form" data-output="#banlist-output">
 				<fieldset>
 					<div class="select">
 						<select name="host">

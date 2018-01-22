@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-class Varnishpurge_BanTask extends BaseTask
+class Citrus_BanTask extends BaseTask
 {
 	private $_bans;
 	private $_socket;
@@ -10,7 +10,7 @@ class Varnishpurge_BanTask extends BaseTask
 
 	public function __construct()
 	{
-		$this->_ban = new Varnishpurge_BanHelper();
+		$this->_ban = new Citrus_BanHelper();
 	}
 
 	public function getDescription()

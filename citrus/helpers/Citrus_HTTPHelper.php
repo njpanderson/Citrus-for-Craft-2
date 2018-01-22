@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-class VarnishPurge_HTTPHelper
+class Citrus_HTTPHelper
 {
 	public function send(
 		$ip,
@@ -10,7 +10,8 @@ class VarnishPurge_HTTPHelper
 		$port = 80,
 		$method = 'PURGE',
 		array $headers = array()
-	) {
+	)
+	{
 		$response = '';
 
 		$fp = @fsockopen(

@@ -1,11 +1,11 @@
 <?php
 namespace Craft;
 
-class Varnishpurge_uriRecord extends BaseRecord
+class Citrus_uriRecord extends BaseRecord
 {
     public function getTableName()
     {
-        return 'varnishpurge_uris';
+        return 'citrus_uris';
     }
 
     protected function defineAttributes()
@@ -30,7 +30,7 @@ class Varnishpurge_uriRecord extends BaseRecord
     public function defineRelations()
     {
         return array(
-            'entries' => array(static::HAS_MANY, 'Varnishpurge_EntryRecord', 'uriId'),
+            'entries' => array(static::HAS_MANY, 'Citrus_EntryRecord', 'uriId'),
         );
     }
 

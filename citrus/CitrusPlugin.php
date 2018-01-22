@@ -1,16 +1,16 @@
 <?php
 namespace Craft;
 
-class VarnishpurgePlugin extends BasePlugin
+class CitrusPlugin extends BasePlugin
 {
 
 	protected $_version = '0.4.0',
 	  $_schemaVersion = '1.2.0',
-	  $_name = 'Varnish Purge',
-	  $_url = 'https://github.com/njpanderson/VarnishPurge-Craft',
-	  $_releaseFeedUrl = 'https://raw.githubusercontent.com/njpanderson/VarnishPurge-Craft/master/releases.json',
-	  $_documentationUrl = 'https://github.com/njpanderson/VarnishPurge-Craft/blob/master/README.md',
-	  $_description = 'Varnish cache purging/management plugin',
+	  $_name = 'Citrus',
+	  $_url = 'https://github.com/njpanderson/Citrus',
+	  $_releaseFeedUrl = 'https://raw.githubusercontent.com/njpanderson/Citrus/master/releases.json',
+	  $_documentationUrl = 'https://github.com/njpanderson/Citrus/blob/master/README.md',
+	  $_description = 'A Craft CMS plugin for purging and banning Varnish caches when elements are saved.',
 	  $_developer = 'Neil Anderson',
 	  $_developerUrl = 'http://neilinscotland.net/',
 	  $_minVersion = '2.4';
@@ -81,20 +81,20 @@ class VarnishpurgePlugin extends BasePlugin
 		require __DIR__ . '/vendor/autoload.php';
 
 		if (craft()->request->isCpRequest()) {
-			craft()->templates->hook('varnishpurge.prepCpTemplate', array($this, 'prepCpTemplate'));
+			craft()->templates->hook('citrus.prepCpTemplate', array($this, 'prepCpTemplate'));
 		}
 
-		if (craft()->varnishpurge->getSetting('purgeEnabled')) {
-			$purgeRelated = craft()->varnishpurge->getSetting('purgeRelated');
+		if (craft()->citrus->getSetting('purgeEnabled')) {
+			$purgeRelated = craft()->citrus->getSetting('purgeRelated');
 
 			craft()->on('elements.onSaveElement', function (Event $event) use ($purgeRelated) {
 				// element saved
-				craft()->varnishpurge->purgeElement($event->params['element'], $purgeRelated);
+				craft()->citrus->purgeElement($event->params['element'], $purgeRelated);
 			});
 
 			craft()->on('entries.onDeleteEntry', function (Event $event) use ($purgeRelated) {
 				//entry deleted
-				craft()->varnishpurge->purgeElement($event->params['entry'], $purgeRelated);
+				craft()->citrus->purgeElement($event->params['entry'], $purgeRelated);
 			});
 
 			craft()->on('elements.onBeforePerformAction', function(Event $event) use ($purgeRelated) {
@@ -104,7 +104,7 @@ class VarnishpurgePlugin extends BasePlugin
 					$elements = $event->params['criteria']->find();
 					foreach ($elements as $element) {
 						if ($element->elementType !== 'Entry') { return; }
-						craft()->varnishpurge->purgeElement($element, $purgeRelated);
+						craft()->citrus->purgeElement($element, $purgeRelated);
 					}
 				}
 			});
@@ -114,32 +114,32 @@ class VarnishpurgePlugin extends BasePlugin
 	public function registerCpRoutes()
 	{
 		return array(
-			'varnishpurge' => array('action' => 'Varnishpurge/index'),
-			'varnishpurge/pages' => array('action' => 'Varnishpurge_Pages/index'),
-			'varnishpurge/bindings' => array('action' => 'Varnishpurge_Bindings/index'),
-			'varnishpurge/bindings/section' => array('action' => 'Varnishpurge_Bindings/section'),
-			'varnishpurge/ban' => array('action' => 'Varnishpurge_Pages/index'),
-			'varnishpurge/ban/list' => array('action' => 'Varnishpurge_Ban/list'),
-			'varnishpurge/test/purge' => array('action' => 'Varnishpurge_Purge/test'),
-			'varnishpurge/test/ban' => array('action' => 'Varnishpurge_Ban/test'),
-			'varnishpurge/test/bindings' => array('action' => 'Varnishpurge_Bindings/test')
+			'citrus' => array('action' => 'Citrus/index'),
+			'citrus/pages' => array('action' => 'Citrus_Pages/index'),
+			'citrus/bindings' => array('action' => 'Citrus_Bindings/index'),
+			'citrus/bindings/section' => array('action' => 'Citrus_Bindings/section'),
+			'citrus/ban' => array('action' => 'Citrus_Pages/index'),
+			'citrus/ban/list' => array('action' => 'Citrus_Ban/list'),
+			'citrus/test/purge' => array('action' => 'Citrus_Purge/test'),
+			'citrus/test/ban' => array('action' => 'Citrus_Ban/test'),
+			'citrus/test/bindings' => array('action' => 'Citrus_Bindings/test')
 		);
 	}
 
 	public function prepCpTemplate(&$context)
 	{
 		$context['subnav'] = array();
-		// $context['subnav']['pages'] = array('label' => 'Pages', 'url' => 'varnishpurge/pages');
-		$context['subnav']['bindings'] = array('label' => 'Bindings', 'url' => 'varnishpurge/bindings');
-		$context['subnav']['logs'] = array('label' => 'Logs', 'url' => 'utils/logs/varnishpurge.log');
+		// $context['subnav']['pages'] = array('label' => 'Pages', 'url' => 'citrus/pages');
+		$context['subnav']['bindings'] = array('label' => 'Bindings', 'url' => 'citrus/bindings');
+		$context['subnav']['logs'] = array('label' => 'Logs', 'url' => 'utils/logs/citrus.log');
 	}
 
 	public function addEntryActions()
 	{
 		$actions = array();
 
-		if (craft()->varnishpurge->getSetting('purgeEnabled')) {
-			$purgeAction = craft()->elements->getAction('Varnishpurge_PurgeCache');
+		if (craft()->citrus->getSetting('purgeEnabled')) {
+			$purgeAction = craft()->elements->getAction('Citrus_PurgeCache');
 
 			$purgeAction->setParams(array(
 			  'label' => Craft::t('Purge cache'),
@@ -155,8 +155,8 @@ class VarnishpurgePlugin extends BasePlugin
 	{
 		$actions = array();
 
-		if (craft()->varnishpurge->getSetting('purgeEnabled')) {
-			$purgeAction = craft()->elements->getAction('Varnishpurge_PurgeCache');
+		if (craft()->citrus->getSetting('purgeEnabled')) {
+			$purgeAction = craft()->elements->getAction('Citrus_PurgeCache');
 
 			$purgeAction->setParams(array(
 			  'label' => Craft::t('Purge cache'),

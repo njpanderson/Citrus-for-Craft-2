@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-class Varnishpurge_PurgeTask extends BaseTask
+class Citrus_PurgeTask extends BaseTask
 {
 	private $_uris;
 	private $_debug;
@@ -9,7 +9,7 @@ class Varnishpurge_PurgeTask extends BaseTask
 
 	public function __construct()
 	{
-		$this->_purge = new Varnishpurge_PurgeHelper();
+		$this->_purge = new Citrus_PurgeHelper();
 	}
 
 	public function getDescription()

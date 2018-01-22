@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-class Varnishpurge_UriHelper
+class Citrus_UriHelper
 {
 	public $path;
 	public $locale;

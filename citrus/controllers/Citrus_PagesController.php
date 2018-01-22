@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-class Varnishpurge_PagesController extends BaseController
+class Citrus_PagesController extends BaseController
 {
 
     /**
@@ -16,10 +16,10 @@ class Varnishpurge_PagesController extends BaseController
     public function actionIndex()
     {
         $variables = array(
-            'title' => 'Varnish Purge - Pages'
+            'title' => '🍊 Citrus - Pages'
         );
 
-        return $this->renderTemplate('varnishpurge/pages/index', $variables);
+        return $this->renderTemplate('citrus/pages/index', $variables);
     }
 
 }

@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-class Varnishpurge_ResponseHelper
+class Citrus_ResponseHelper
 {
 	const CODE_OK = 0;
 	const CODE_ERROR_GENERAL = -1;

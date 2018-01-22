@@ -3,9 +3,9 @@ namespace Craft;
 
 use \njpanderson\VarnishConnect;
 
-class VarnishpurgeController extends BaseController
+class CitrusController extends BaseController
 {
-	use Varnishpurge_BaseHelper;
+	use Citrus_BaseHelper;
 
 	/**
 	 * @var    bool|array Allows anonymous access to this controller's actions.
@@ -20,10 +20,10 @@ class VarnishpurgeController extends BaseController
 	 */
 	public function actionIndex()
 	{
-		$bansSupported = craft()->varnishpurge->getSetting('bansSupported');
+		$bansSupported = craft()->citrus->getSetting('bansSupported');
 
 		$variables = $this->getTemplateStandardVars([
-			'title' => 'Varnish Purge',
+			'title' => '🍊 Citrus',
 			'tabs' => [
 				0 => [
 					'label' => 'Purge',
@@ -46,7 +46,7 @@ class VarnishpurgeController extends BaseController
 			return $this->actionPurgeBan();
 		}
 
-		return $this->renderTemplate('varnishpurge/index', $variables);
+		return $this->renderTemplate('citrus/index', $variables);
 	}
 
 	public function actionPurgeBan()
@@ -59,10 +59,10 @@ class VarnishpurgeController extends BaseController
 
 		if ($type === 'ban') {
 			// Type is "ban" - send a ban query
-			$responses = craft()->varnishpurge->banQuery($query, true, $hostId);
+			$responses = craft()->citrus->banQuery($query, true, $hostId);
 		} else {
 			// Fall back to purge
-			$responses = craft()->varnishpurge->purgeURI($query, $hostId);
+			$responses = craft()->citrus->purgeURI($query, $hostId);
 		}
 
 		if (craft()->request->isAjaxRequest) {
@@ -78,7 +78,7 @@ class VarnishpurgeController extends BaseController
 			$userSessionService = craft()->userSession;
 			$userSessionService->setNotice(Craft::t('Cache cleared.'));
 
-			$this->redirect('varnishpurge');
+			$this->redirect('citrus');
 		}
 	}
 }

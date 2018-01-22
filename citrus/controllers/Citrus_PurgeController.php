@@ -1,9 +1,9 @@
 <?php
 namespace Craft;
 
-class Varnishpurge_PurgeController extends BaseController
+class Citrus_PurgeController extends BaseController
 {
-	use Varnishpurge_BaseHelper;
+	use Citrus_BaseHelper;
 
 	private $elementId, $numUris;
 
@@ -28,7 +28,7 @@ class Varnishpurge_PurgeController extends BaseController
 
 		echo "Purging element \"{$element->title}\" ({$element->id})<br/>\r\n";
 
-		$tasks = craft()->varnishpurge->purgeElement($element, true, true);
+		$tasks = craft()->citrus->purgeElement($element, true, true);
 
 		foreach ($tasks as $task) {
 			craft()->tasks->runTask($task);
@@ -45,7 +45,7 @@ class Varnishpurge_PurgeController extends BaseController
 			'debug' => true
 		);
 
-		$task = craft()->tasks->createTask('Varnishpurge_Purge', null, $settings);
+		$task = craft()->tasks->createTask('Citrus_Purge', null, $settings);
 		craft()->tasks->runTask($task);
 	}
 
@@ -55,7 +55,7 @@ class Varnishpurge_PurgeController extends BaseController
 		for ($a = 0; $a < $count; $a += 1) {
 			array_push(
 				$result,
-				craft()->varnishpurge->makeVarnishUri($prefix . '?n=' . $this->uuid())
+				craft()->citrus->makeVarnishUri($prefix . '?n=' . $this->uuid())
 			);
 		}
 

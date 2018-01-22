@@ -4,7 +4,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 /**
- * Fill the DB tables varnishpurge_uris and varnishpurge_entries with URI data
+ * Fill the DB tables citrus_uris and citrus_entries with URI data
  * in order to allow load testing on purge requests.
  */
 class EntryFill {
@@ -12,7 +12,7 @@ class EntryFill {
 		$args,
 		$db,
 		$stmts,
-		$uriSuffix = '&varnishpurgefilltest=1',
+		$uriSuffix = '&citrusfilltest=1',
 		$hashAlgo = 'crc32',
 		$date;
 
@@ -47,7 +47,7 @@ class EntryFill {
 	}
 
 	public function init() {
-		$this->write("Varnish Purge Entry Filler");
+		$this->write("Citrus Entry Filler");
 
 		if (isset($this->args['h'])) {
 			// Just output help
@@ -138,7 +138,7 @@ class EntryFill {
 		$this->stmts = array(
 			'uris' => $this->db->prepare("
 				INSERT INTO
-					`" . $this->args['p'] . "varnishpurge_uris`(
+					`" . $this->args['p'] . "citrus_uris`(
 						uriHash,
 						uri,
 						dateCreated,
@@ -153,7 +153,7 @@ class EntryFill {
 			"),
 			'entries' => $this->db->prepare("
 				INSERT INTO
-					`" . $this->args['p'] . "varnishpurge_entries`(
+					`" . $this->args['p'] . "citrus_entries`(
 						uriId,
 						entryId,
 						dateCreated,
@@ -168,21 +168,21 @@ class EntryFill {
 			"),
 			'clear_uris' => $this->db->prepare("
 				DELETE FROM
-					`" . $this->args['p'] . "varnishpurge_uris`
+					`" . $this->args['p'] . "citrus_uris`
 				WHERE
 					uri LIKE :uriSuffix
 			"),
 			'clear_entries' => $this->db->prepare("
 				DELETE
-					`" . $this->args['p'] . "varnishpurge_entries`
+					`" . $this->args['p'] . "citrus_entries`
 				FROM
-					`" . $this->args['p'] . "varnishpurge_entries`
+					`" . $this->args['p'] . "citrus_entries`
 				LEFT JOIN
-					`" . $this->args['p'] . "varnishpurge_uris` ON (
-						`" . $this->args['p'] . "varnishpurge_uris`.id = `" . $this->args['p'] . "varnishpurge_entries`.uriId
+					`" . $this->args['p'] . "citrus_uris` ON (
+						`" . $this->args['p'] . "citrus_uris`.id = `" . $this->args['p'] . "citrus_entries`.uriId
 					)
 				WHERE
-					`" . $this->args['p'] . "varnishpurge_uris`.id IS NULL
+					`" . $this->args['p'] . "citrus_uris`.id IS NULL
 			")
 		);
 	}

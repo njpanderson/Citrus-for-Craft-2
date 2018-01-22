@@ -1,4 +1,4 @@
-🍊Citrus
+🍊 Citrus
 =====
 A Craft CMS plugin for purging and banning Varnish caches when elements are saved.
 
@@ -6,7 +6,7 @@ A Craft CMS plugin for purging and banning Varnish caches when elements are save
 
 Installation
 ---
-1. Download and extract the contents of the zip. Copy the /varnishpurge folder to your Craft plugin folder.
+1. Download and extract the contents of the zip. Copy the /citrus folder to your Craft plugin folder.
 2. Enable the Citrus plugin in Craft (Settings > Plugins).
 3. Override default configuration if necessary. (See "Configuration" below).
 4. Create optional bindings if needed. (See "Bindings" below).
@@ -141,7 +141,7 @@ Tagging
 Citrus supports a tagging system which will help to create a list of URLs on which an entry has appeared on the front end. It works by adding the following code to a template wherever an entry might appear:
 
 ```
-{{ craft.varnishpurge.tag({ entryId: entry.id }) }}
+{{ craft.citrus.tag({ entryId: entry.id }) }}
 ```
 
 It's a potentially hard concept to get your head around, so imagine that the tags essentially identify, on a URL of your website, where the entries might be represented on it. For example, if you have a news article, it might be seen on the following URLs:
@@ -155,7 +155,7 @@ There are many URLs on which a single entry could potentially appear — not jus
 
 Whenever this purge takes place, the URLs registered within the index are then deleted, to avoid unecessarily purging URLs.
 
-The possible parameters for `varnishpurge.tag` are:
+The possible parameters for `citrus.tag` are:
 
 | Parameter | Description |
 | --- | --- |

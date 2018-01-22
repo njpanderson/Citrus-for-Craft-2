@@ -3,9 +3,9 @@ namespace Craft;
 
 use \njpanderson\VarnishConnect;
 
-class Varnishpurge_BanController extends BaseController
+class Citrus_BanController extends BaseController
 {
-	use Varnishpurge_BaseHelper;
+	use Citrus_BaseHelper;
 
 	private $_query;
 	private $_isFullQuery;
@@ -41,7 +41,7 @@ class Varnishpurge_BanController extends BaseController
 			'debug' => true
 		);
 
-		$task = craft()->tasks->createTask('Varnishpurge_Ban', null, $settings);
+		$task = craft()->tasks->createTask('Citrus_Ban', null, $settings);
 		craft()->tasks->runTask($task);
 	}
 
@@ -73,6 +73,6 @@ class Varnishpurge_BanController extends BaseController
 			}
 		}
 
-		return $this->renderTemplate('varnishpurge/fragments/banlist', $variables);
+		return $this->renderTemplate('citrus/fragments/banlist', $variables);
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-class Varnishpurge_BindingsController extends BaseController
+class Citrus_BindingsController extends BaseController
 {
 
 	const BINDINGS_TABLE_PREFIX = 'bindingsType_';
@@ -18,16 +18,16 @@ class Varnishpurge_BindingsController extends BaseController
 	public function actionIndex()
 	{
 		$variables = array(
-			'title' => 'Varnish Purge - Bindings',
-			'sections' => craft()->varnishpurge_bindings->getSections()
+			'title' => '🍊 Citrus - Bindings',
+			'sections' => craft()->citrus_bindings->getSections()
 		);
 
-		return $this->renderTemplate('varnishpurge/bindings/index', $variables);
+		return $this->renderTemplate('citrus/bindings/index', $variables);
 	}
 
 	public function actionSection()
 	{
-		$bansSupported = craft()->varnishpurge->getSetting('bansSupported');
+		$bansSupported = craft()->citrus->getSetting('bansSupported');
 		$bindTypes = array('PURGE' => 'PURGE');
 
 		if ($bansSupported) {
@@ -64,7 +64,7 @@ class Varnishpurge_BindingsController extends BaseController
 				}
 
 				// populate rows with bindings
-				$bindings = craft()->varnishpurge_bindings->getBindings(
+				$bindings = craft()->citrus_bindings->getBindings(
 					$variables['sectionId']
 				);
 
@@ -76,7 +76,7 @@ class Varnishpurge_BindingsController extends BaseController
 				}
 			}
 
-			return $this->renderTemplate('varnishpurge/bindings/section', $variables);
+			return $this->renderTemplate('citrus/bindings/section', $variables);
 		} else {
 			throw new HttpException(400, Craft::t('Param sectionId must not be empty.'));
 		}
@@ -104,8 +104,8 @@ class Varnishpurge_BindingsController extends BaseController
 			}
 		}
 
-		$cleared = craft()->varnishpurge_bindings->clearBindings($sectionId);
-		$saved = craft()->varnishpurge_bindings->setBindings($sectionId, $bindings);
+		$cleared = craft()->citrus_bindings->clearBindings($sectionId);
+		$saved = craft()->citrus_bindings->setBindings($sectionId, $bindings);
 
 		if ($cleared && $saved) {
 			$userSessionService->setNotice(Craft::t('Bindings saved.'));
@@ -113,7 +113,7 @@ class Varnishpurge_BindingsController extends BaseController
 			$userSessionService->setError(Craft::t('Couldn’t save bindings.'));
 		}
 
-		$this->redirect('varnishpurge/bindings');
+		$this->redirect('citrus/bindings');
 	}
 
 	public function actionTest()
@@ -127,25 +127,25 @@ class Varnishpurge_BindingsController extends BaseController
 			throw(new Exception('Element tyoe is not an Entry. Only entries are supported.'));
 		}
 
-		$uris = craft()->varnishpurge->getBindingQueries(
+		$uris = craft()->citrus->getBindingQueries(
 			$element->section->id,
 			$element->type->id,
-			Varnishpurge_BindingsRecord::TYPE_PURGE
+			Citrus_BindingsRecord::TYPE_PURGE
 		);
 
-		$bans = craft()->varnishpurge->getBindingQueries(
+		$bans = craft()->citrus->getBindingQueries(
 			$element->section->id,
 			$element->type->id,
 			array(
-				Varnishpurge_BindingsRecord::TYPE_BAN,
-				Varnishpurge_BindingsRecord::TYPE_FULLBAN
+				Citrus_BindingsRecord::TYPE_BAN,
+				Citrus_BindingsRecord::TYPE_FULLBAN
 			)
 		);
 
 		if (count($uris) > 0) {
 			array_push(
 				$tasks,
-				craft()->tasks->createTask('Varnishpurge_Purge', null, array(
+				craft()->tasks->createTask('Citrus_Purge', null, array(
 					'uris' => $uris,
 					'debug' => true
 				))
@@ -155,7 +155,7 @@ class Varnishpurge_BindingsController extends BaseController
 		if (count($bans) > 0) {
 			array_push(
 				$tasks,
-				craft()->tasks->createTask('Varnishpurge_Ban', null, array(
+				craft()->tasks->createTask('Citrus_Ban', null, array(
 					'bans' => $bans,
 					'debug' => true
 				))

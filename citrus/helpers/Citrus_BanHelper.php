@@ -3,9 +3,9 @@ namespace Craft;
 
 use \njpanderson\VarnishConnect;
 
-class Varnishpurge_BanHelper
+class Citrus_BanHelper
 {
-	use Varnishpurge_BaseHelper;
+	use Citrus_BaseHelper;
 
 	private $_socket = array();
 
@@ -36,14 +36,14 @@ class Varnishpurge_BanHelper
 
 	private function sendHTTP($id, $host, $query, $isFullQuery = false, $debug = false)
 	{
-		$response = new Varnishpurge_ResponseHelper(
-			Varnishpurge_ResponseHelper::CODE_OK
+		$response = new Citrus_ResponseHelper(
+			Citrus_ResponseHelper::CODE_OK
 		);
 
 		$client = new \Guzzle\Http\Client();
 		$client->setDefaultOption('headers/Accept', '*/*');
 
-		$banQueryHeader = craft()->varnishpurge->getSetting('banQueryHeader');
+		$banQueryHeader = craft()->citrus->getSetting('banQueryHeader');
 		$headers = array(
 			'Host' => $host['hostName']
 		);
@@ -52,10 +52,10 @@ class Varnishpurge_BanHelper
 
 		$headers[$banQueryHeader] = $banQuery;
 
-		VarnishpurgePlugin::log(
+		CitrusPlugin::log(
 			"Sending BAN query to '{$host['url'][craft()->language]}': '{$banQuery}'",
 			LogLevel::Info,
-			craft()->varnishpurge->getSetting('logAll'),
+			craft()->citrus->getSetting('logAll'),
 			$debug
 		);
 
@@ -79,8 +79,8 @@ class Varnishpurge_BanHelper
 	}
 
 	private function sendAdmin($id, $host, $query, $isFullQuery = false, $debug = false) {
-		$response = new Varnishpurge_ResponseHelper(
-			Varnishpurge_ResponseHelper::CODE_OK
+		$response = new Citrus_ResponseHelper(
+			Citrus_ResponseHelper::CODE_OK
 		);
 
 		try {
@@ -88,10 +88,10 @@ class Varnishpurge_BanHelper
 
 			$banQuery = $this->_parseBan($host, $query, $isFullQuery);
 
-			VarnishpurgePlugin::log(
+			CitrusPlugin::log(
 				"Adding BAN query to '{$host['adminIP']}': {$banQuery}",
 				LogLevel::Info,
-				craft()->varnishpurge->getSetting('logAll'),
+				craft()->citrus->getSetting('logAll'),
 				$debug
 			);
 
@@ -104,17 +104,17 @@ class Varnishpurge_BanHelper
 						join($result['message'], '" "') .
 						"'";
 
-					VarnishpurgePlugin::log(
+					CitrusPlugin::log(
 						$response->message,
 						LogLevel::Error,
 						true,
 						$debug
 					);
 				} else {
-					$response->code = Varnishpurge_ResponseHelper::CODE_ERROR_GENERAL;
+					$response->code = Citrus_ResponseHelper::CODE_ERROR_GENERAL;
 					$response->message = "Ban error: could not send to '{$host['adminIP']}'";
 
-					VarnishpurgePlugin::log(
+					CitrusPlugin::log(
 						$response->message,
 						LogLevel::Error,
 						true,
@@ -125,10 +125,10 @@ class Varnishpurge_BanHelper
 				$response->message = sprintf('BAN "%s" added successfully', $banQuery);
 			}
 		} catch(\Exception $e) {
-			$response->code = Varnishpurge_ResponseHelper::CODE_ERROR_GENERAL;
+			$response->code = Citrus_ResponseHelper::CODE_ERROR_GENERAL;
 			$response->message = 'Ban error: ' . $e->getMessage();
 
-			VarnishpurgePlugin::log(
+			CitrusPlugin::log(
 				$response->message,
 				LogLevel::Error,
 				true,

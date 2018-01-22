@@ -1,7 +1,7 @@
 <?php
 namespace Craft;
 
-class Varnishpurge_BindingsService extends BaseApplicationComponent
+class Citrus_BindingsService extends BaseApplicationComponent
 {
     /**
      * Returns the active BindingsRecord bindings for a section, grouped by type
@@ -14,7 +14,7 @@ class Varnishpurge_BindingsService extends BaseApplicationComponent
         if ($typeId !== 0) $attrs['typeId'] = $typeId;
         if (!empty($bindType)) $attrs['bindType'] = $bindType;
 
-        return Varnishpurge_BindingsRecord::model()->findAllByAttributes($attrs);
+        return Citrus_BindingsRecord::model()->findAllByAttributes($attrs);
     }
 
     /**
@@ -43,7 +43,7 @@ class Varnishpurge_BindingsService extends BaseApplicationComponent
     public function getBindingCounts()
     {
         $result = [];
-        $model = Varnishpurge_BindingsRecord::model();
+        $model = Citrus_BindingsRecord::model();
 
         $sections = craft()->db->createCommand()
             ->select('sectionId, count(*) AS num')
@@ -62,7 +62,7 @@ class Varnishpurge_BindingsService extends BaseApplicationComponent
      * Clears the current bindings for a section.
      */
     public function clearBindings(int $sectionId) {
-        Varnishpurge_BindingsRecord::model()->deleteAll(
+        Citrus_BindingsRecord::model()->deleteAll(
             'sectionId = ?',
             [$sectionId]
         );
@@ -78,7 +78,7 @@ class Varnishpurge_BindingsService extends BaseApplicationComponent
 
         foreach ($data as $entryType => $bindings) {
             foreach ($bindings as $binding) {
-                $record = new Varnishpurge_BindingsRecord;
+                $record = new Citrus_BindingsRecord;
                 $record->sectionId = $sectionId;
                 $record->typeId = $entryType;
                 $record->bindType = $binding['bindType'];

@@ -1,7 +1,7 @@
 [
     {
         "version": "0.2.2",
-        "downloadUrl": "https://github.com/aelvan/VarnishPurge-Craft/archive/master.zip",
+        "downloadUrl": "https://github.com/aelvan/Citrus-Craft/archive/master.zip",
         "date": "2017-01-04T11:55:12+00:00",
         "notes": [
             "[Added] Purge entry on deletion (by @miralize).",
@@ -9,7 +9,7 @@
     },
     {
         "version": "0.2.1",
-        "downloadUrl": "https://github.com/aelvan/VarnishPurge-Craft/archive/master.zip",
+        "downloadUrl": "https://github.com/aelvan/Citrus-Craft/archive/master.zip",
         "date": "2016-12-31T17:24:00+02:00",
         "notes": [
             "[Fixed] PHP 5.3 syntax fix (by @miralize).",
@@ -19,7 +19,7 @@
     },
     {
         "version": "0.2.0",
-        "downloadUrl": "https://github.com/aelvan/VarnishPurge-Craft/archive/master.zip",
+        "downloadUrl": "https://github.com/aelvan/Citrus-Craft/archive/master.zip",
         "date": "2016-12-20T20:44:00+02:00",
         "notes": [
             "[Added] Varnish Purge now uses its own config file. Breaks backward compability, make sure you update your config (by @timkelty).",
@@ -29,7 +29,7 @@
     },
     {
         "version": "0.1.0",
-        "downloadUrl": "https://github.com/aelvan/VarnishPurge-Craft/archive/master.zip",
+        "downloadUrl": "https://github.com/aelvan/Citrus-Craft/archive/master.zip",
         "date": "2015-10-17T12:00:00+02:00",
         "notes": [
             "[Added] Initial release"

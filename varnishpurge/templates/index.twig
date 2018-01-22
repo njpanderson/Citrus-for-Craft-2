@@ -61,7 +61,7 @@
 						<input type="submit" class="btn submit" value="Send Ban Query">
 					</div>
 
-					{% include 'varnishpurge/fragments/bankeys' %}
+					{% include 'varnishpurge/fragments/bankeys' with locales %}
 				</fieldset>
 
 				<input type="hidden" name="purgeban_type" value="ban">

@@ -22,7 +22,7 @@ class VarnishpurgeController extends BaseController
 	{
 		$bansSupported = craft()->varnishpurge->getSetting('bansSupported');
 
-		$variables = [
+		$variables = $this->getTemplateStandardVars([
 			'title' => 'Varnish Purge',
 			'tabs' => [
 				0 => [
@@ -33,7 +33,7 @@ class VarnishpurgeController extends BaseController
 			'bansSupported' => $bansSupported,
 			'hosts' => $this->getVarnishHosts(),
 			'adminHosts' => $this->getVarnishAdminHosts()
-		];
+		]);
 
 		if ($bansSupported) {
 			array_push($variables['tabs'], [

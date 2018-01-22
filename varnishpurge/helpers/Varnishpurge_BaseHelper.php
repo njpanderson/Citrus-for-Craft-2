@@ -201,6 +201,22 @@ trait Varnishpurge_BaseHelper
 		return $response;
 	}
 
+	protected function getTemplateStandardVars(array $customVariables)
+	{
+		$variables = array();
+		$locales = array();
+
+		foreach (craft()->i18n->getEditableLocales() as $locale) {
+			array_push($locales, $locale);
+		}
+
+		$variables['locales'] = $locales;
+
+		$variables = array_merge($customVariables, $variables);
+
+		return $variables;
+	}
+
 	private function _uniqueUrls($urls)
 	{
 		$found = array();

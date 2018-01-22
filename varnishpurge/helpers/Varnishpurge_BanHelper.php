@@ -160,15 +160,19 @@ class Varnishpurge_BanHelper
 			$query = self::BAN_PREFIX . $query;
 		}
 
-		// run through parsing steps
-		$query = str_replace(array(
-			'${hostname}',
-			'${baseUrl}'
-		), array(
-			$host['hostName'],
-			$host['url']
-		), $query);
+		$find = ['${hostname}'];
+		$replace = [$host['hostName']];
 
+		foreach (craft()->i18n->getEditableLocales() as $locale) {
+			array_push($find, '${baseUrl-' . $locale->id . '}');
+
+			if (isset($host['url'][$locale->id])) {
+				array_push($replace, $host['url'][$locale->id]);
+			}
+		}
+
+		// run through parsing steps
+		$query = str_replace($find, $replace, $query);
 		$query = str_replace('\\', '\\\\', $query);
 
 		return $query;

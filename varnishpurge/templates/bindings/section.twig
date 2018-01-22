@@ -43,7 +43,7 @@
 		{% endfor %}
 
 		{% if bansSupported %}
-			{% include 'varnishpurge/fragments/bankeys.twig' %}
+			{% include 'varnishpurge/fragments/bankeys.twig' with locales %}
 		{% endif %}
 	{% endif %}
 {% endset %}

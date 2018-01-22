@@ -35,7 +35,7 @@ class Varnishpurge_BindingsController extends BaseController
 			$bindTypes['FULLBAN'] = 'FULLBAN';
 		}
 
-		$variables = array(
+		$variables = $this->getTemplateStandardVars([
 			'title' => 'Varnish Purge - Bindings',
 			'sectionId' => craft()->request->getRequiredParam('sectionId'),
 			'bindTypes' => $bindTypes,
@@ -43,7 +43,7 @@ class Varnishpurge_BindingsController extends BaseController
 			'bindings' => [],
 			'fullPageForm' => true,
 			'bansSupported' => $bansSupported
-		);
+		]);
 
 		if (!empty($variables['sectionId'])) {
 			$variables['section'] = craft()->sections->getSectionById(

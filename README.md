@@ -1,18 +1,20 @@
-Varnish Purge for Craft
+🍊Citrus
 =====
-Craft plugin for purging Varnish when elements are saved.
+A Craft CMS plugin for purging and banning Varnish caches when elements are saved.
+
+ > _Citrus, a common liquid for stripping varnish._
 
 Installation
 ---
 1. Download and extract the contents of the zip. Copy the /varnishpurge folder to your Craft plugin folder.
-2. Enable the Varnish Purge plugin in Craft (Settings > Plugins).
+2. Enable the Citrus plugin in Craft (Settings > Plugins).
 3. Override default configuration if necessary. (See "Configuration" below).
 4. Create optional bindings if needed. (See "Bindings" below).
 5. Configure tags as necessary in the template. (See "Tagging" below).
 
 Configuration
 ---
-To configure Varnish Purge, create a new `varnishpurge.php` config file in your config folder, and override settings as needed. The following settings are the default (found in `config.php` in the plugin folder):
+To configure Citrus, create a new `citrus.php` config file in your config folder, and override settings as needed. The following settings are the default (found in `config.php` in the plugin folder):
 
 ```
 'varnishHosts' => [],
@@ -45,7 +47,7 @@ Used to configure multiple Varnish hosts. See below for options.
 The url to your Varnish server. Usually this is your site url, but it could be different if you don't purge through a private connection, or if you use the IP directly to bypass CloudFlare or similar services. If your site url and the varnish url is different, make sure you handle this in your VCL file.
 
 #### varnishHostName
-If the Varnish server cannot be directly referenced via its host name, Varnish Purge has an option to explicitly provide the host name in a second setting. For example:
+If the Varnish server cannot be directly referenced via its host name, Citrus has an option to explicitly provide the host name in a second setting. For example:
 
 ```
 'varnishUrl' => 'http://123.123.123.120',
@@ -55,7 +57,7 @@ If the Varnish server cannot be directly referenced via its host name, Varnish P
 All HTTP based requests will be sent to the server by its IP but a `Host` header will also define the host name required.
 
 #### purgeEnabled
-Enables or disables the Varnish Purge plugin. You'd normally want to disable it in your dev environments and enable it in your prod environment.
+Enables or disables the Citrus plugin. You'd normally want to disable it in your dev environments and enable it in your prod environment.
 
 #### purgeRelated
 Enables or disables purging of related urls when an element is saved. This should normally be enabled to make sure that all relevant urls are updated, but could be disabled on high traffic websites to make sure the cache stays as warm as possible.
@@ -70,7 +72,7 @@ A lookup map for purging additional urls that needs it when a given url is purge
 If either the admin socket or HTTP banning can be performed on the Varnish hosts, set this option to `true`. Otherwise use `false` and no banning related options will appear. **Important:** changing this option after ban bindings have been added can lead loss of binding settings.
 
 #### adminIP, adminPort & adminSecret
-If using the admin socket method for adding bans, the relevant details for the Varnish host IP, admin port and secret file (usually found in `/etc/varnish`) will need to be entered here. If one of these three options is omitted and `bansSupported` is `true`, Varnish Purge will fall back to the HTTP method for banning.
+If using the admin socket method for adding bans, the relevant details for the Varnish host IP, admin port and secret file (usually found in `/etc/varnish`) will need to be entered here. If one of these three options is omitted and `bansSupported` is `true`, Citrus will fall back to the HTTP method for banning.
 
 #### banQueryHeader
 Defines the header to use for HTTP banning. See "Configuring Varnish" for more information.
@@ -119,7 +121,7 @@ It's up to you what name you give each host, which is defined as the array key f
 | `adminSecret` | `adminSecret` |
 
 
-How Varnish Purge works
+How Citrus works
 ---
 When an element is saved, the plugin collects the urls *that it thinks need to be updated*, and creates a new task that sends purge requests to the Varnish server for each url.
 
@@ -136,7 +138,7 @@ The plugin also adds a new element action to entries and categories for purging 
 
 Tagging
 ---
-Varnish Purge supports a tagging system which will help to create a list of URLs on which an entry has appeared on the front end. It works by adding the following code to a template wherever an entry might appear:
+Citrus supports a tagging system which will help to create a list of URLs on which an entry has appeared on the front end. It works by adding the following code to a template wherever an entry might appear:
 
 ```
 {{ craft.varnishpurge.tag({ entryId: entry.id }) }}
@@ -164,7 +166,7 @@ Bindings
 ---
 Bindings are premade purge or ban requests which will be sent to your Varnish hosts whenever an entry within the section and entry type is either created or edited.
 
-To create a binding within the "Bindings" navigation of the "Varnish Purge" plugin, first choose the section you wish to edit and then click "Edit bindings". You will be taken to a screen showing all of the **entry types** available to that section, and the bindings can be set within each type.
+To create a binding within the "Bindings" navigation of the "Citrus" plugin, first choose the section you wish to edit and then click "Edit bindings". You will be taken to a screen showing all of the **entry types** available to that section, and the bindings can be set within each type.
 
 Click the "Add a row" button to add a new binding, then choose the type of binding, then enter the appropriate query required and click on "Save bindings" to save all of the bindings at once. As with the on-demand banning, query template keys can be used within bans.
 
@@ -205,7 +207,7 @@ Configuring Varnish
 ---
 If not using the admin port method for banning, a small addition will need to be made to the VCL configuration for Varnish in order to enable bans over HTTP.
 
-Varnish purge sends bans over HTTP by adding a new HTTP Header named "Ban-Query-Full" by default. This header can then be used within the VCL code to instantiate a single ban. The following example is how to handle this header:
+Citrus sends bans over HTTP by adding a new HTTP Header named "Ban-Query-Full" by default. This header can then be used within the VCL code to instantiate a single ban. The following example is how to handle this header:
 
 ```
 if (req.method == "BAN") {
@@ -223,7 +225,7 @@ if (req.method == "BAN") {
 }
 ```
 
-This will enable Varnish to accept ban requests over HTTP from the Varnish Purge plugin.
+This will enable Varnish to accept ban requests over HTTP from the Citrus plugin.
 
 
 Thanks

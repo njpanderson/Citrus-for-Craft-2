@@ -244,7 +244,7 @@ class CitrusService extends BaseApplicationComponent
 
         $uris = $this->_uniqueUris($uris);
 
-        foreach (craft()->plugins->call('varnishPurgeTransformElementUris', [$element, $uris]) as $plugin => $pluginUris) {
+        foreach (craft()->plugins->call('CitrusTransformElementUris', [$element, $uris]) as $plugin => $pluginUris) {
             if ($pluginUris !== null) {
                 $uris = $pluginUris;
             }

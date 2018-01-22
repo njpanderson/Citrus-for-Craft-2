@@ -162,7 +162,7 @@ The possible parameters for `varnishpurge.tag` are:
 
 Bindings
 ---
-Bindings are premade purge or ban requests which will be sent to your Varnish hosts whenever an entry within the section and entry type is either created or edited. 
+Bindings are premade purge or ban requests which will be sent to your Varnish hosts whenever an entry within the section and entry type is either created or edited.
 
 To create a binding within the "Bindings" navigation of the "Varnish Purge" plugin, first choose the section you wish to edit and then click "Edit bindings". You will be taken to a screen showing all of the **entry types** available to that section, and the bindings can be set within each type.
 
@@ -226,6 +226,6 @@ if (req.method == "BAN") {
 This will enable Varnish to accept ban requests over HTTP from the Varnish Purge plugin.
 
 
-Price, license and support
+Thanks
 ---
-The plugin is released under the MIT license, meaning you can do what ever you want with it as long as you don't blame me. **It's free**, which means there is absolutely no support included, but you might get it anyway. Just post an issue here on github if you have one, and I'll see what I can do. :)
+Many thanks to [aelvan](https://github.com/aelvan/VarnishPurge-Craft) for the original plugin onto which this one has been built.

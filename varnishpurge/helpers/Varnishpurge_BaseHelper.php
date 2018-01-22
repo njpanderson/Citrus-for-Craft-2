@@ -82,7 +82,7 @@ trait Varnishpurge_BaseHelper
 	{
 		$hosts = craft()->varnishpurge->getSetting('varnishHosts');
 
-		if (!is_array($hosts)) {
+		if (!is_array($hosts) || !empty($hosts)) {
 			// Hosts is not an array - make into one using the global settings
 			$canDoAdminBans = (
 				!empty(craft()->varnishpurge->getSetting('adminIP')) &&
@@ -90,33 +90,33 @@ trait Varnishpurge_BaseHelper
 				!empty(craft()->varnishpurge->getSetting('adminSecret'))
 			);
 
-			return array(
-				'public' => array(
+			$hosts = [
+				'public' => [
 					'url' => craft()->varnishpurge->getSetting('varnishUrl'),
 					'hostName' => craft()->varnishpurge->getSetting('varnishHostName'),
 					'adminIP' => craft()->varnishpurge->getSetting('adminIP'),
 					'adminPort' => craft()->varnishpurge->getSetting('adminPort'),
 					'adminSecret' => craft()->varnishpurge->getSetting('adminSecret'),
 					'canDoAdminBans' => $canDoAdminBans
-				)
+				]
+			];
+		}
+
+		// Normalise and sanity check hosts before returning
+		foreach ($hosts as &$host) {
+			$host['canDoAdminBans'] = (
+				!empty($host['adminIP']) &&
+				!empty($host['adminPort']) &&
+				!empty($host['adminSecret'])
 			);
-		} else {
-			// Gather hosts and sanity check
-			foreach ($hosts as &$host) {
-				$host['canDoAdminBans'] = (
-					!empty($host['adminIP']) &&
-					!empty($host['adminPort']) &&
-					!empty($host['adminSecret'])
-				);
 
-				if (!$host['url']) {
-					$host['url'] = array_fill_keys(array(craft()->language), craft()->getSiteUrl());
-				}
+			if (!$host['url']) {
+				$host['url'] = array_fill_keys([craft()->language], craft()->getSiteUrl());
+			}
 
-				if (!is_array($host['url'])) {
-					// URL array is not split by locale, create with current locale
-					$host['url'] = array_fill_keys(array(craft()->language), $host['url']);
-				}
+			if (!is_array($host['url'])) {
+				// URL array is not split by locale, create with current locale
+				$host['url'] = array_fill_keys([craft()->language], $host['url']);
 			}
 		}
 

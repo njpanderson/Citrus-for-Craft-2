@@ -6,30 +6,29 @@ Installation
 ---
 1. Download and extract the contents of the zip. Copy the /citrus folder to your Craft plugin folder.
 2. Enable the Citrus plugin in Craft (Settings > Plugins).
-3. Override default configuration if necessary. (See "Configuration" below).
-4. Create optional bindings if needed. (See "Bindings" below).
-5. Configure tags as necessary in the template. (See "Tagging" below).
+3. [Override default configuration if necessary](https://github.com/njpanderson/Citrus#configuration).
+4. [Create optional bindings if needed](https://github.com/njpanderson/Citrus#bindings).
+5. [Configure tags as necessary in the template](/njpanderson/Citrus#tagging).
 
 Configuration
 ---
-To configure Citrus, create a new `citrus.php` config file in your config folder, and override settings as needed. The following settings are the default (found in `config.php` in the plugin folder):
+To configure Citrus, create a new `citrus.php` config file in your config folder, and override settings as needed. The following settings are the default:
 
-```
-'varnishHosts' => [],
-'varnishUrl' => craft()->getSiteUrl(),
-'varnishHostName' => craft()->request->hostName,
-'purgeEnabled' => isset($_SERVER['HTTP_X_VARNISH']),
-'purgeRelated' => true,
-'logAll' => 0,
-'purgeUrlMap' => [],
-'bansSupported' => false,
-'adminIP' => '',
-'adminPort' => '',
-'adminSecret' => '',
-'banQueryHeader' => 'Ban-Query-Full'
-```
+| Option | Default |
+| --- | --- |
+| `varnishHosts` | `[]` |
+| `varnishUrl` | (Current site base URL) |
+| `varnishHostName` | (Current hostname) |
+| `purgeEnabled` | (Dependent on `HTTP_X_VARNISH` header) |
+| `purgeRelated` | `true` |
+| `logAll` | `0` (Only log important messages) |
+| `bansSupported` | `false` |
+| `adminIp` | (Empty) |
+| `adminPort` | (Empty) |
+| `adminSecret` | (Empty) |
+| `banQueryHeader` | `Ban-Query-Full` |
 
-The `varnishUrl` setting can also be an array if you are running a multi language site:
+The `varnishUrl` setting can also be an array if you are running a multi language site, e.g:
 
 ```
 'varnishUrl' => array(

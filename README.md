@@ -137,7 +137,7 @@ Tagging
 ---
 Citrus supports a tagging system which will help to create a list of URLs on which an entry has appeared on the front end. It works by adding the following code to a template wherever an entry might appear:
 
-```
+```twig
 {{ craft.citrus.tag({ entryId: entry.id }) }}
 ```
 

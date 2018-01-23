@@ -3,6 +3,7 @@ namespace Craft;
 
 class Citrus_BindingsController extends BaseController
 {
+	use Citrus_BaseHelper;
 
 	const BINDINGS_TABLE_PREFIX = 'bindingsType_';
 

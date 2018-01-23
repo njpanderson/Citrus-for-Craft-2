@@ -82,7 +82,7 @@ trait Citrus_BaseHelper
 	{
 		$hosts = craft()->citrus->getSetting('varnishHosts');
 
-		if (!is_array($hosts) || !empty($hosts)) {
+		if (!is_array($hosts) || empty($hosts)) {
 			// Hosts is not an array - make into one using the global settings
 			$canDoAdminBans = (
 				!empty(craft()->citrus->getSetting('adminIP')) &&

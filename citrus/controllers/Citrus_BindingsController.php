@@ -37,7 +37,7 @@ class Citrus_BindingsController extends BaseController
 		}
 
 		$variables = $this->getTemplateStandardVars([
-			'title' => 'Varnish Purge - Bindings',
+			'title' => '🍊 Citrus - Bindings',
 			'sectionId' => craft()->request->getRequiredParam('sectionId'),
 			'bindTypes' => $bindTypes,
 			'tabs' => [],

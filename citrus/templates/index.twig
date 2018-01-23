@@ -106,7 +106,7 @@
 				<input type="button" class="btn" data-form-cancel value="Cancel">
 				<input type="submit" class="btn submit" value="Clear">
 				<input type="hidden" name="purgeban_type" value="ban">
-				<input type="hidden" name="query" value=".*">
+				<input type="hidden" name="query" value="req.http.host == ${hostname} &amp;&amp; req.url ~ .*">
 				<input type="hidden" name="{{ craft.config.csrfTokenName }}" value="{{ craft.request.csrfToken }}">
 			</div>
 		</div>

@@ -30,7 +30,7 @@ To configure Citrus, create a new `citrus.php` config file in your config folder
 
 The `varnishUrl` setting can also be an array if you are running a multi language site, e.g:
 
-```
+```php
 'varnishUrl' => array(
     'no' => 'http://your-varnish-server.com/no/',
     'en' => 'http://your-varnish-server.com/en/',
@@ -46,9 +46,9 @@ The url to your Varnish server. Usually this is your site url, but it could be d
 #### varnishHostName
 If the Varnish server cannot be directly referenced via its host name, Citrus has an option to explicitly provide the host name in a second setting. For example:
 
-```
-'varnishUrl' => 'http://123.123.123.120',
-'varnishHostName' => 'myawesomewebsite.com',
+```php
+	'varnishUrl' => 'http://123.123.123.120',
+	'varnishHostName' => 'myawesomewebsite.com',
 ```
 
 All HTTP based requests will be sent to the server by its IP but a `Host` header will also define the host name required.
@@ -80,31 +80,31 @@ If the CMS is configured behind more than one Varnish host, purge and ban comman
 
 An example setup for a multilingual, multi-Varnish system could look as follows:
 
-```
-'varnishHosts' => [
-	'main' => [
-		'url' => [
-			'en_gb' => 'http://123.123.123.121/',
-			'it' => 'http://123.123.123.121/it/',
-			'ja' => 'http://123.123.123.121/ja/',
+```php
+	'varnishHosts' => [
+		'main' => [
+			'url' => [
+				'en_gb' => 'http://123.123.123.121/',
+				'it' => 'http://123.123.123.121/it/',
+				'ja' => 'http://123.123.123.121/ja/',
+			],
+			'hostName' => 'myhostname.com',
+			'adminIP' => '123.123.123.121',
+			'adminPort' => '6082',
+			'adminSecret' => '<secret_key>',
 		],
-		'hostName' => 'myhostname.com',
-		'adminIP' => '123.123.123.121',
-		'adminPort' => '6082',
-		'adminSecret' => '<secret_key>',
-	],
-	'failover1' => [
-		'url' => [
-			'en_gb' => 'http://123.123.123.122/',
-			'it' => 'http://123.123.123.122/it/',
-			'ja' => 'http://123.123.123.122/ja/',
+		'failover1' => [
+			'url' => [
+				'en_gb' => 'http://123.123.123.122/',
+				'it' => 'http://123.123.123.122/it/',
+				'ja' => 'http://123.123.123.122/ja/',
+			],
+			'hostName' => 'myhostname.com',
+			'adminIP' => '123.123.123.122',
+			'adminPort' => '6082',
+			'adminSecret' => '<secret_key>',
 		],
-		'hostName' => 'myhostname.com',
-		'adminIP' => '123.123.123.122',
-		'adminPort' => '6082',
-		'adminSecret' => '<secret_key>',
-	],
-]
+	]
 ```
 
 It's up to you what name you give each host, which is defined as the array key for each array within `varnishHosts`. The following options can be given for each host:
@@ -180,7 +180,7 @@ Setting cache headers in your templates
 ---
 Unless overridden within the VCL configuration, Varnish uses cache headers sent by Craft to determine if/how to cache a request. You can configure this in your webserver, but it can be more flexible to configure this within the templates:
 
-```
+```twig
 // _layout.twig
 {% if expiryTime is not defined %}{% set expiryTime = '+1 week' %}{% endif %}
 
@@ -194,7 +194,7 @@ Unless overridden within the VCL configuration, Varnish uses cache headers sent 
 
 The expiry time can then be overridden within individual templates like so:
 
-```
+```twig
 // article.twig
 {% extends "_layout" %}
 {% set expiryTime = '+60 mins' %}

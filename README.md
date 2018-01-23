@@ -2,8 +2,6 @@
 =====
 A Craft CMS plugin for purging and banning Varnish caches when elements are saved.
 
- > _Citrus, a common liquid for stripping varnish._
-
 Installation
 ---
 1. Download and extract the contents of the zip. Copy the /citrus folder to your Craft plugin folder.
@@ -227,6 +225,9 @@ if (req.method == "BAN") {
 
 This will enable Varnish to accept ban requests over HTTP from the Citrus plugin.
 
+Why "Citrus"?
+---
+Citrus juices are a [common alternative](https://duckduckgo.com/?q=stripping+varnish+citrus&t=osx&ia=products) to chemicals for stripping Varnish in the real world. The name felt snappy enough to use for this plugin!
 
 Thanks
 ---

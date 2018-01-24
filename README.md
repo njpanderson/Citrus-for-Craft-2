@@ -27,6 +27,7 @@ To configure Citrus, create a new `citrus.php` config file in your config folder
 | `adminPort` | (Empty) |
 | `adminSecret` | (Empty) |
 | `banQueryHeader` | `Ban-Query-Full` |
+| `adminCookieName` | `CitrusAdmin` |
 
 The `varnishUrl` setting can also be an array if you are running a multi language site, e.g:
 
@@ -73,6 +74,20 @@ If using the admin socket method for adding bans, the relevant details for the V
 
 #### banQueryHeader
 Defines the header to use for HTTP banning. See "Configuring Varnish" for more information.
+
+#### adminCookieName
+When logging into the admin, Citrus will set a recognisable cookie which can be optionally used within the Varnish VCL to disable the cache for administrative users on the front end. The name of the cookie can be set with this variable.
+
+So long as you're already passing the admin area with Varnish, an example syntax for preventing caching with this cookie would be as follows:
+
+```
+# Disable cache for authenticated users
+if (req.http.Cookie ~ "CitrusAdmin=1") {
+	return (pass);
+}
+```
+
+If this feature is not required, then set the name to `false`.
 
 Defining multiple Varnish hosts
 ---

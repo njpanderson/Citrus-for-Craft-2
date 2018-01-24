@@ -22,4 +22,5 @@ return array(
     'adminPort' => '',
     'adminSecret' => '',
     'banQueryHeader' => 'Ban-Query-Full',
+    'adminCookieName' => 'CitrusAdmin'
 );

@@ -108,6 +108,14 @@ class CitrusPlugin extends BasePlugin
 					}
 				}
 			});
+
+			craft()->on('userSession.onBeforeLogin', function(Event $event) {
+				$this->setCitrusCookie('1');
+			});
+
+			craft()->on('userSession.onLogout', function(Event $event) {
+				$this->setCitrusCookie();
+			});
 		}
 	}
 
@@ -185,6 +193,25 @@ class CitrusPlugin extends BasePlugin
 		}
 
 		parent::log($message, $level, $override);
+	}
+
+	private function setCitrusCookie($value = '')
+	{
+		$cookieName = craft()->citrus->getSetting('adminCookieName');
+
+		if ($cookieName === false) {
+			return;
+		}
+
+		setcookie(
+			$cookieName,
+			$value,
+			0,
+			'/',
+			null,
+			craft()->request->isSecureConnection(),
+			true
+		);
 	}
 
 }

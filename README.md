@@ -246,3 +246,12 @@ Citrus juices are a [common alternative](https://duckduckgo.com/?q=stripping+var
 Thanks
 ---
 Many thanks to [aelvan](https://github.com/aelvan/VarnishPurge-Craft) for the original plugin onto which this one has been built.
+
+Reporting bugs and requesting features
+---
+Feel free to use the issues function in github to do this. If reporting a bug, please include **at minimum** the following details:
+
+ - Description of any error messages (not just "it didn't work", if possible!).
+ - Steps to reproduce.
+ - Version number of Citrus, Craft, PHP, and Varnish.
+ - Optionally, any other information that might help.

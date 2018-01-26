@@ -2,6 +2,20 @@
 =====
 A Craft CMS plugin for purging and banning Varnish caches when elements are saved.
 
+It supports:
+
+🍊 Banning/Purging via section bindings<br>
+🍊 A tagging system, to identify where entries are located<br>
+🍊 Admin or HTTP banning<br>
+🍊 On-demand banning and purging<br>
+🍊 Multilingual sites<br>
+🍊 Multiple Varnish hosts
+
+
+Download Citrus
+---
+[Download the latest version here](https://github.com/njpanderson/Citrus/zipball/master)
+
 Installation
 ---
 1. Download and extract the contents of the zip. Copy the /citrus folder to your Craft plugin folder.

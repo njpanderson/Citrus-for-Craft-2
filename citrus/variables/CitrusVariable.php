@@ -32,10 +32,7 @@ class CitrusVariable extends BaseApplicationComponent
     {
         $criteria = array_merge(array(
             'entryId' => 0,
-            'uri' => craft()->elements->getElementUriForLocale(
-                $criteria['entryId'],
-                craft()->language
-            ),
+            'uri' => craft()->request->url,
             'uriHash' => null
         ), $criteria);
 

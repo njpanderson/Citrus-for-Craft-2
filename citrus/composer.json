@@ -8,5 +8,7 @@
 	],
 	"require": {
 		"njpanderson/varnish-connect": "dev-master"
+	},
+	"require-dev": {
 	}
 }

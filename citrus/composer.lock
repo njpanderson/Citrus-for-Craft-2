@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "696a842d578d9f414d67d82349388791",
+    "content-hash": "5576c49c657c7eb19bdfde55c4489729",
     "packages": [
         {
             "name": "njpanderson/varnish-connect",

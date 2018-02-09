@@ -10,8 +10,7 @@ class Citrus_HTTPHelper
 		$port = 80,
 		$method = 'PURGE',
 		array $headers = array()
-	)
-	{
+	) {
 		$response = '';
 
 		$fp = @fsockopen(

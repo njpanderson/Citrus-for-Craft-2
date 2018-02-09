@@ -3,95 +3,103 @@ namespace Craft;
 
 class Citrus_BindingsService extends BaseApplicationComponent
 {
-    /**
-     * Returns the active BindingsRecord bindings for a section, grouped by type
-     */
-    public function getBindings(int $sectionId, int $typeId = 0, $bindType = '') {
-        $attrs = [
-            'sectionId' => $sectionId
-        ];
+	/**
+	 * Returns the active BindingsRecord bindings for a section, grouped by type
+	 */
+	public function getBindings(int $sectionId, int $typeId = 0, $bindType = '')
+	{
+		$attrs = [
+			'sectionId' => $sectionId
+		];
 
-        if ($typeId !== 0) $attrs['typeId'] = $typeId;
-        if (!empty($bindType)) $attrs['bindType'] = $bindType;
+		if ($typeId !== 0) {
+			$attrs['typeId'] = $typeId;
+		}
 
-        return Citrus_BindingsRecord::model()->findAllByAttributes($attrs);
-    }
+		if (!empty($bindType)) {
+			$attrs['bindType'] = $bindType;
+		}
 
-    /**
-     * Returns the current CMS sections with binding counts.
-     */
-    public function getSections()
-    {
-        $result = [];
+		return Citrus_BindingsRecord::model()->findAllByAttributes($attrs);
+	}
 
-        $sections = craft()->sections->getAllSections();
-        $bindings = $this->getBindingCounts();
+	/**
+	 * Returns the current CMS sections with binding counts.
+	 */
+	public function getSections()
+	{
+		$result = [];
 
-        foreach ($sections as $section) {
-            $result[] = array(
-                'bindings' => isset($bindings[$section->id]) ? $bindings[$section->id] : 0,
-                'craftSection' => $section
-            );
-        }
+		$sections = craft()->sections->getAllSections();
+		$bindings = $this->getBindingCounts();
 
-        return $result;
-    }
+		foreach ($sections as $section) {
+			$result[] = array(
+				'bindings' => isset($bindings[$section->id]) ? $bindings[$section->id] : 0,
+				'craftSection' => $section
+			);
+		}
 
-    /**
-     * Returns the binding counts, grouped by section.
-     */
-    public function getBindingCounts()
-    {
-        $result = [];
-        $model = Citrus_BindingsRecord::model();
+		return $result;
+	}
 
-        $sections = craft()->db->createCommand()
-            ->select('sectionId, count(*) AS num')
-            ->from($model->tableName())
-            ->group('sectionId')
-            ->queryAll();
+	/**
+	 * Returns the binding counts, grouped by section.
+	 */
+	public function getBindingCounts()
+	{
+		$result = [];
+		$model = Citrus_BindingsRecord::model();
 
-        foreach ($sections as $section) {
-            $result[$section['sectionId']] = $section['num'];
-        }
+		$sections = craft()->db->createCommand()
+			->select('sectionId, count(*) AS num')
+			->from($model->tableName())
+			->group('sectionId')
+			->queryAll();
 
-        return $result;
-    }
+		foreach ($sections as $section) {
+			$result[$section['sectionId']] = $section['num'];
+		}
 
-    /**
-     * Clears the current bindings for a section.
-     */
-    public function clearBindings(int $sectionId) {
-        Citrus_BindingsRecord::model()->deleteAll(
-            'sectionId = ?',
-            [$sectionId]
-        );
+		return $result;
+	}
 
-        return true;
-    }
+	/**
+	 * Clears the current bindings for a section.
+	 */
+	public function clearBindings(int $sectionId)
+	{
+		Citrus_BindingsRecord::model()->deleteAll(
+			'sectionId = ?',
+			[$sectionId]
+		);
 
-    /**
-     * (Re)sets the active bindings for a section.
-     */
-    public function setBindings(int $sectionId, array $data = array()) {
-        $success = true;
+		return true;
+	}
 
-        foreach ($data as $entryType => $bindings) {
-            foreach ($bindings as $binding) {
-                $record = new Citrus_BindingsRecord;
-                $record->sectionId = $sectionId;
-                $record->typeId = $entryType;
-                $record->bindType = $binding['bindType'];
-                $record->query = $binding['query'];
-                $success = $record->save();
+	/**
+	 * (Re)sets the active bindings for a section.
+	 */
+	public function setBindings(int $sectionId, array $data = array())
+	{
+		$success = true;
 
-                if (!$success) {
-                    // early return if a save failed
-                    return $success;
-                }
-            }
-        }
+		foreach ($data as $entryType => $bindings) {
+			foreach ($bindings as $binding) {
+				$record = new Citrus_BindingsRecord;
+				$record->sectionId = $sectionId;
+				$record->typeId = $entryType;
+				$record->bindType = $binding['bindType'];
+				$record->query = $binding['query'];
+				$success = $record->save();
 
-        return $success;
-    }
+				if (!$success) {
+					// early return if a save failed
+					return $success;
+				}
+			}
+		}
+
+		return $success;
+	}
 }

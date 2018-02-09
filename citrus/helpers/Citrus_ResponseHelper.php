@@ -7,14 +7,14 @@ class Citrus_ResponseHelper
 	const CODE_ERROR_GENERAL = -1;
 	const CODE_ERROR_CURL = -2;
 
-	function __construct($code, $message = '', $data = null)
+	public function __construct($code, $message = '', $data = null)
 	{
 		$this->code = $code;
 		$this->message = $message;
 		$this->data = ($data !== null ? $data : array());
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		return $this->code . ' ' . $this->message;
 	}

@@ -3,13 +3,13 @@ namespace Craft;
 
 class Citrus_PurgeTask extends BaseTask
 {
-	private $_uris;
-	private $_debug;
-	private $_purge;
+	private $uris;
+	private $debug;
+	private $purge;
 
 	public function __construct()
 	{
-		$this->_purge = new Citrus_PurgeHelper();
+		$this->purge = new Citrus_PurgeHelper();
 	}
 
 	public function getDescription()
@@ -19,17 +19,17 @@ class Citrus_PurgeTask extends BaseTask
 
 	public function getTotalSteps()
 	{
-		$this->_uris = $this->getSettings()->uris;
-		$this->_debug = $this->getSettings()->debug;
+		$this->uris = $this->getSettings()->uris;
+		$this->debug = $this->getSettings()->debug;
 
-		return count($this->_uris);
+		return count($this->uris);
 	}
 
 	public function runStep($step)
 	{
-		$this->_purge->purge(
-			$this->_uris[$step],
-			$this->_debug
+		$this->purge->purge(
+			$this->uris[$step],
+			$this->debug
 		);
 
 		// Sleep for .1 seconds
@@ -46,5 +46,4 @@ class Citrus_PurgeTask extends BaseTask
 		  'debug' => AttributeType::Bool,
 		);
 	}
-
 }

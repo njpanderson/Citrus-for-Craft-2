@@ -7,7 +7,7 @@ class Citrus_BanHelper
 {
 	use Citrus_BaseHelper;
 
-	private $_socket = array();
+	private $socket = array();
 
 	const BAN_PREFIX = 'req.http.host == ${hostname} && req.url ~ ';
 
@@ -48,7 +48,7 @@ class Citrus_BanHelper
 			'Host' => $host['hostName']
 		);
 
-		$banQuery = $this->_parseBan($host, $query, $isFullQuery);
+		$banQuery = $this->parseBan($host, $query, $isFullQuery);
 
 		$headers[$banQueryHeader] = $banQuery;
 
@@ -71,22 +71,23 @@ class Citrus_BanHelper
 			return $this->parseGuzzleResponse($request, $httpResponse);
 		} catch (\Guzzle\Http\Exception\BadResponseException $e) {
 			return $this->parseGuzzleError($id, $e, $debug);
-		} catch(\Guzzle\Http\Exception\CurlException $e) {
+		} catch (\Guzzle\Http\Exception\CurlException $e) {
 			return $this->parseGuzzleError($id, $e, $debug);
-		} catch(Exception $e) {
+		} catch (Exception $e) {
 			return $this->parseGuzzleError($id, $e, $debug);
 		}
 	}
 
-	private function sendAdmin($id, $host, $query, $isFullQuery = false, $debug = false) {
+	private function sendAdmin($id, $host, $query, $isFullQuery = false, $debug = false)
+	{
 		$response = new Citrus_ResponseHelper(
 			Citrus_ResponseHelper::CODE_OK
 		);
 
 		try {
-			$socket = $this->_getSocket($host['adminIP'], $host['adminPort'], $host['adminSecret']);
+			$socket = $this->getSocket($host['adminIP'], $host['adminPort'], $host['adminSecret']);
 
-			$banQuery = $this->_parseBan($host, $query, $isFullQuery);
+			$banQuery = $this->parseBan($host, $query, $isFullQuery);
 
 			CitrusPlugin::log(
 				"Adding BAN query to '{$host['adminIP']}': {$banQuery}",
@@ -124,7 +125,7 @@ class Citrus_BanHelper
 			} else {
 				$response->message = sprintf('BAN "%s" added successfully', $banQuery);
 			}
-		} catch(\Exception $e) {
+		} catch (\Exception $e) {
 			$response->code = Citrus_ResponseHelper::CODE_ERROR_GENERAL;
 			$response->message = 'Ban error: ' . $e->getMessage();
 
@@ -139,23 +140,25 @@ class Citrus_BanHelper
 		return $response;
 	}
 
-	private function _getSocket($ip, $port, $secret) {
-		if (isset($this->_socket[$ip])) {
-			return $this->_socket[$ip];
+	private function getSocket($ip, $port, $secret)
+	{
+		if (isset($this->socket[$ip])) {
+			return $this->socket[$ip];
 		}
 
-		$this->_socket[$ip] = new VarnishConnect\Socket(
+		$this->socket[$ip] = new VarnishConnect\Socket(
 			$ip,
 			$port,
 			$secret
 		);
 
-		$this->_socket[$ip]->connect();
+		$this->socket[$ip]->connect();
 
-		return $this->_socket[$ip];
+		return $this->socket[$ip];
 	}
 
-	private function _parseBan($host, $query, $isFullQuery = false) {
+	private function parseBan($host, $query, $isFullQuery = false)
+	{
 		if (!$isFullQuery) {
 			$query = self::BAN_PREFIX . $query;
 		}

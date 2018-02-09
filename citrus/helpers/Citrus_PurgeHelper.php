@@ -5,7 +5,7 @@ class Citrus_PurgeHelper
 {
 	use Citrus_BaseHelper;
 
-   public function purge(array $uri, $debug = false)
+	public function purge(array $uri, $debug = false)
 	{
 		$response = array();
 
@@ -51,9 +51,9 @@ class Citrus_PurgeHelper
 			return $this->parseGuzzleResponse($request, $httpResponse, true);
 		} catch (\Guzzle\Http\Exception\BadResponseException $e) {
 			return $this->parseGuzzleError($id, $e, $debug);
-		} catch(\Guzzle\Http\Exception\CurlException $e) {
+		} catch (\Guzzle\Http\Exception\CurlException $e) {
 			return $this->parseGuzzleError($id, $e, $debug);
-		} catch(Exception $e) {
+		} catch (Exception $e) {
 			return $this->parseGuzzleError($id, $e, $debug);
 		}
 	}

@@ -5,9 +5,10 @@ class Citrus_PurgeController extends BaseController
 {
 	use Citrus_BaseHelper;
 
-	private $elementId, $numUris;
+	private $elementId;
+	private $numUris;
 
-	function __construct()
+	public function __construct()
 	{
 		$this->elementId = (int) craft()->request->getQuery('id');
 		$this->numUris = (int) craft()->request->getQuery('n', 10);
@@ -16,13 +17,13 @@ class Citrus_PurgeController extends BaseController
 	public function actionTest()
 	{
 		if ($this->elementId) {
-			$this->_testElement($this->elementId);
+			$this->testElementId($this->elementId);
 		} else {
-			$this->_testUris($this->numUris);
+			$this->testUris($this->numUris);
 		}
 	}
 
-	private function _testElement($id)
+	private function testElementId($id)
 	{
 		$element = craft()->elements->getElementById($id);
 
@@ -35,10 +36,10 @@ class Citrus_PurgeController extends BaseController
 		}
 	}
 
-	private function _testUris($num)
+	private function testUris($num)
 	{
 		$settings = array(
-			'uris' => $this->_fillUris(
+			'uris' => $this->fillUris(
 				'',
 				$num
 			),
@@ -49,7 +50,7 @@ class Citrus_PurgeController extends BaseController
 		craft()->tasks->runTask($task);
 	}
 
-	private function _fillUris($prefix, int $count = 1) {
+	private function fillUris($prefix, int $count = 1) {
 		$result = array();
 
 		for ($a = 0; $a < $count; $a += 1) {

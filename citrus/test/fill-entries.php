@@ -1,5 +1,7 @@
 #!/usr/bin/php
 <?php
+namespace njpanderson\Citrus;
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -7,16 +9,17 @@ error_reporting(E_ALL);
  * Fill the DB tables citrus_uris and citrus_entries with URI data
  * in order to allow load testing on purge requests.
  */
-class EntryFill {
-	private
-		$args,
-		$db,
-		$stmts,
-		$uriSuffix = '&citrusfilltest=1',
-		$hashAlgo = 'crc32',
-		$date;
+class EntryFill
+{
+	private $args;
+	private $db;
+	private $stmts;
+	private $uriSuffix = '&citrusfilltest=1';
+	private $hashAlgo = 'crc32';
+	private $date;
 
-	function __construct() {
+	public function __construct()
+	{
 		$this->args = array_merge(array(
 			'p' => 'craft_',
 			'uri' => '/',
@@ -46,7 +49,8 @@ class EntryFill {
 		}
 	}
 
-	public function init() {
+	public function init()
+	{
 		$this->write("Citrus Entry Filler");
 
 		if (isset($this->args['h'])) {
@@ -89,9 +93,12 @@ class EntryFill {
 		}
 
 		// Get DB password
-		$this->write("Connecting to 'mysql:host=" . $this->args['host'] . ";dbname=" . $this->args['d'] . "'...");
-		$this->write("Password for user " . $this->args['u'] . ": ", '');
-		$handle = fopen ("php://stdin","r");
+		$this->write('Connecting to \'mysql:host=' . $this->args['host'] . ';dbname=' . $this->args['d'] . '\'...');
+
+		$this->write('Password for user ' . $this->args['u'] . ': ', '');
+
+		$handle = fopen('php://stdin', 'r');
+
 		$this->args['password'] = trim(fgets($handle));
 
 		try {
@@ -106,7 +113,7 @@ class EntryFill {
 			);
 
 			// Get prepared statements
-			$this->prep_stmts();
+			$this->prepStatements();
 		} catch (\Exception $e) {
 			$this->error("Could not connect to DB - ", $e);
 		}
@@ -114,17 +121,19 @@ class EntryFill {
 		return true;
 	}
 
-	public function fill() {
+	public function fill()
+	{
 		// Insert URIs
-		$ids = $this->insert_uris($this->args['n'], $this->args['uri']);
+		$ids = $this->insertUris($this->args['n'], $this->args['uri']);
 
 		// Insert entries
-		$this->insert_entries($ids, $this->args['e']);
+		$this->insertEntries($ids, $this->args['e']);
 
 		$this->write(number_Format($this->args['n'], 0) . ' test URIs inserted.');
 	}
 
-	public function clear() {
+	public function clear()
+	{
 		$this->execute('clear_uris', array(
 			':uriSuffix' => '%' . $this->uriSuffix . '%'
 		));
@@ -134,7 +143,8 @@ class EntryFill {
 		$this->write('All test URIs and empty entries cleared.');
 	}
 
-	private function prep_stmts() {
+	private function prepStatements()
+	{
 		$this->stmts = array(
 			'uris' => $this->db->prepare("
 				INSERT INTO
@@ -187,7 +197,8 @@ class EntryFill {
 		);
 	}
 
-	private function insert_uris(int $count, string $prefix) {
+	private function insertUris(int $count, string $prefix)
+	{
 		$result = array();
 		$data = array(
 			':uriHash' => '',
@@ -209,7 +220,8 @@ class EntryFill {
 		return $result;
 	}
 
-	private function insert_entries(array $uriIds, int $entryId) {
+	private function insertEntries(array $uriIds, int $entryId)
+	{
 		foreach ($uriIds as $id) {
 			$this->execute('entries', array(
 				':uriId' => $id,
@@ -219,7 +231,8 @@ class EntryFill {
 		}
 	}
 
-	private function write($str, $terminator = "\n") {
+	private function write($str, $terminator = "\n")
+	{
 		if (is_array($str)) {
 			$str = implode("\n", $str);
 		}
@@ -227,43 +240,48 @@ class EntryFill {
 		echo $str . $terminator;
 	}
 
-	private function error($message, $e = false) {
+	private function error($message, $e = false)
+	{
 		$this->write('Error - ' . $message . ($e ? ' ' . $e->getMessage() : ''));
 		exit(1);
 	}
 
-	private function exit($str, $terminator = "\n") {
+	private function exit($str, $terminator = "\n")
+	{
 		$this->write($str, $terminator . $terminator);
 		exit;
 	}
 
-	private function hash($str) {
-      return hash($this->hashAlgo, $str);
-   }
+	private function hash($str)
+	{
+		return hash($this->hashAlgo, $str);
+	}
 
-	private function uuid() {
-		return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+	private function uuid()
+	{
+		return sprintf(
+			'%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
 			// 32 bits for "time_low"
-			mt_rand(0, 0xffff), mt_rand(0, 0xffff),
-
+			mt_rand(0, 0xffff),
+			mt_rand(0, 0xffff),
 			// 16 bits for "time_mid"
 			mt_rand(0, 0xffff),
-
 			// 16 bits for "time_hi_and_version",
 			// four most significant bits holds version number 4
 			mt_rand(0, 0x0fff) | 0x4000,
-
 			// 16 bits, 8 bits for "clk_seq_hi_res",
 			// 8 bits for "clk_seq_low",
 			// two most significant bits holds zero and one for variant DCE1.1
 			mt_rand(0, 0x3fff) | 0x8000,
-
 			// 48 bits for "node"
-			mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+			mt_rand(0, 0xffff),
+			mt_rand(0, 0xffff),
+			mt_rand(0, 0xffff)
 		);
 	}
 
-	private function getJob() {
+	private function getJob()
+	{
 		if (isset($this->args['c'])) {
 			return 'clear';
 		}
@@ -271,7 +289,8 @@ class EntryFill {
 		return 'fill';
 	}
 
-	private function execute($stmt, $params = null) {
+	private function execute($stmt, $params = null)
+	{
 		$this->stmts[$stmt]->execute($params);
 
 		if ($this->stmts[$stmt]->errorCode() != 0) {

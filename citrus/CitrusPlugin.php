@@ -3,17 +3,16 @@ namespace Craft;
 
 class CitrusPlugin extends BasePlugin
 {
-
-	protected $_version = '0.4.1',
-	  $_schemaVersion = '1.2.0',
-	  $_name = 'Citrus',
-	  $_url = 'https://github.com/njpanderson/Citrus',
-	  $_releaseFeedUrl = 'https://raw.githubusercontent.com/njpanderson/Citrus/master/releases.json',
-	  $_documentationUrl = 'https://github.com/njpanderson/Citrus/blob/master/README.md',
-	  $_description = 'A Craft CMS plugin for purging and banning Varnish caches when elements are saved.',
-	  $_developer = 'Neil Anderson',
-	  $_developerUrl = 'http://neilinscotland.net/',
-	  $_minVersion = '2.4';
+	protected $version = '0.4.1';
+	protected $schemaVersion = '1.2.0';
+	protected $name = 'Citrus';
+	protected $url = 'https://github.com/njpanderson/Citrus';
+	protected $releaseFeedUrl = 'https://raw.githubusercontent.com/njpanderson/Citrus/master/releases.json';
+	protected $documentationUrl = 'https://github.com/njpanderson/Citrus/blob/master/README.md';
+	protected $description = 'A Craft CMS plugin for purging and banning Varnish caches when elements are saved.';
+	protected $developer = 'Neil Anderson';
+	protected $developerUrl = 'http://neilinscotland.net/';
+	protected $minVersion = '2.4';
 
 	const URI_TAG = 0;
 	const URI_ELEMENT = 1;
@@ -21,52 +20,52 @@ class CitrusPlugin extends BasePlugin
 
 	public function getName()
 	{
-		return Craft::t($this->_name);
+		return Craft::t($this->name);
 	}
 
 	public function getUrl()
 	{
-		return $this->_url;
+		return $this->url;
 	}
 
 	public function getVersion()
 	{
-		return $this->_version;
+		return $this->version;
 	}
 
 	public function getDeveloper()
 	{
-		return $this->_developer;
+		return $this->developer;
 	}
 
 	public function getDeveloperUrl()
 	{
-		return $this->_developerUrl;
+		return $this->developerUrl;
 	}
 
 	public function getDescription()
 	{
-		return $this->_description;
+		return $this->description;
 	}
 
 	public function getDocumentationUrl()
 	{
-		return $this->_documentationUrl;
+		return $this->documentationUrl;
 	}
 
 	public function getSchemaVersion()
 	{
-		return $this->_schemaVersion;
+		return $this->schemaVersion;
 	}
 
 	public function getReleaseFeedUrl()
 	{
-		return $this->_releaseFeedUrl;
+		return $this->releaseFeedUrl;
 	}
 
 	public function getCraftRequiredVersion()
 	{
-		return $this->_minVersion;
+		return $this->minVersion;
 	}
 
 	public function hasCpSection()
@@ -97,23 +96,30 @@ class CitrusPlugin extends BasePlugin
 				craft()->citrus->purgeElement($event->params['entry'], $purgeRelated);
 			});
 
-			craft()->on('elements.onBeforePerformAction', function(Event $event) use ($purgeRelated) {
-				//entry deleted via element action
-				$action = $event->params['action']->classHandle;
-				if ($action == 'Delete') {
-					$elements = $event->params['criteria']->find();
-					foreach ($elements as $element) {
-						if ($element->elementType !== 'Entry') { return; }
-						craft()->citrus->purgeElement($element, $purgeRelated);
+			craft()->on(
+				'elements.onBeforePerformAction',
+				function (Event $event) use ($purgeRelated) {
+					//entry deleted via element action
+					$action = $event->params['action']->classHandle;
+					if ($action == 'Delete') {
+						$elements = $event->params['criteria']->find();
+
+						foreach ($elements as $element) {
+							if ($element->elementType !== 'Entry') {
+								return;
+							}
+
+							craft()->citrus->purgeElement($element, $purgeRelated);
+						}
 					}
 				}
-			});
+			);
 
-			craft()->on('userSession.onBeforeLogin', function(Event $event) {
+			craft()->on('userSession.onBeforeLogin', function (Event $event) {
 				$this->setCitrusCookie('1');
 			});
 
-			craft()->on('userSession.onLogout', function(Event $event) {
+			craft()->on('userSession.onLogout', function (Event $event) {
 				$this->setCitrusCookie();
 			});
 		}
@@ -181,8 +187,7 @@ class CitrusPlugin extends BasePlugin
 		$level = LogLevel::Info,
 		$override = false,
 		$debug = false
-	)
-	{
+	) {
 		if ($debug) {
 			// Also write to screen
 			if ($level === LogLevel::Error) {
@@ -213,5 +218,4 @@ class CitrusPlugin extends BasePlugin
 			true
 		);
 	}
-
 }

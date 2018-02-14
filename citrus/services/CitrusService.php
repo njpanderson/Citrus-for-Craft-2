@@ -270,7 +270,7 @@ class CitrusService extends BaseApplicationComponent
 				$tagUri->locale,
 				CitrusPlugin::URI_TAG
 			);
-			// $tagUri->delete();
+			$tagUri->delete();
 		}
 
 		return $uris;

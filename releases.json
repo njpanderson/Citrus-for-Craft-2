@@ -1,5 +1,13 @@
 [
     {
+        "version": "0.4.2",
+        "downloadUrl": "https://github.com/njpanderson/Citrus/archive/master.zip",
+        "date": "2017-02-16T06:20:00+00:00",
+        "notes": [
+            "[Fixed] URL unique-ness logic within element purging has been improved."
+        ]
+    },
+    {
         "version": "0.4.1",
         "downloadUrl": "https://github.com/njpanderson/Citrus/archive/master.zip",
         "date": "2017-01-04T11:55:12+00:00",

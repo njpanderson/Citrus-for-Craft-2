@@ -3,7 +3,7 @@ namespace Craft;
 
 class CitrusPlugin extends BasePlugin
 {
-	protected $version = '0.4.1';
+	protected $version = '0.4.2';
 	protected $schemaVersion = '1.2.0';
 	protected $name = 'Citrus';
 	protected $url = 'https://github.com/njpanderson/Citrus';

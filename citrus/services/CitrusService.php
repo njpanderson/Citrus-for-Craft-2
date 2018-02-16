@@ -59,6 +59,7 @@ class CitrusService extends BaseApplicationComponent
 			}
 
 			$uris = $this->uniqueUris($uris);
+
 			// $uris = array_merge($uris, $this->getMappedUris($uris));
 
 			if (count($uris) > 0) {
@@ -158,6 +159,9 @@ class CitrusService extends BaseApplicationComponent
 			$locale = $locale->id;
 		}
 
+		// Sanity check beginning slashes
+		$uri = '/' . ltrim($uri, '/');
+
 		return array(
 			'uri' => $uri,
 			'locale' => $locale,
@@ -242,8 +246,6 @@ class CitrusService extends BaseApplicationComponent
 				unset($relatedProducts);
 			}
 		}
-
-		$uris = $this->uniqueUris($uris);
 
 		foreach (craft()->plugins->call('CitrusTransformElementUris', [$element, $uris]) as $plugin => $pluginUris) {
 			if ($pluginUris !== null) {
@@ -404,12 +406,23 @@ class CitrusService extends BaseApplicationComponent
 	private function uniqueUris($uris)
 	{
 		$found = array();
+		$result = array();
 
-		return array_filter($uris, function ($uri) use ($found) {
-			if (!in_array($uri['uri'], $found)) {
-				array_push($found, $uri['uri']);
-				return true;
+		foreach ($uris as $uri) {
+			if (!isset($uri['locale']) || empty($uri['locale'])) {
+				$uri['locale'] = '<none>';
 			}
-		});
+
+			if (!isset($found[$uri['locale']])) {
+				$found[$uri['locale']] = array();
+			}
+
+			if (isset($uri['uri']) && !in_array($uri['uri'], $found[$uri['locale']])) {
+				array_push($found[$uri['locale']], $uri['uri']);
+				array_push($result, $uri);
+			}
+		}
+
+		return $result;
 	}
 }

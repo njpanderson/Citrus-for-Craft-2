@@ -69,7 +69,7 @@ If the Varnish server cannot be directly referenced via its host name, Citrus ha
 All HTTP based requests will be sent to the server by its IP but a `Host` header will also define the host name required.
 
 #### purgeEnabled
-Enables or disables the Citrus plugin. You'd normally want to disable it in your dev environments and enable it in your prod environment.
+Enables or disables purging on Entry editing within the Citrus plugin. On-demand purging is always available.
 
 #### purgeRelated
 Enables or disables purging of related urls when an element is saved. This should normally be enabled to make sure that all relevant urls are updated, but could be disabled on high traffic websites to make sure the cache stays as warm as possible.

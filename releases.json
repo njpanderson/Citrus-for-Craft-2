@@ -1,5 +1,14 @@
 [
     {
+        "version": "0.4.3",
+        "downloadUrl": "https://github.com/njpanderson/Citrus/archive/master.zip",
+        "date": "2017-02-16T06:20:00+00:00",
+        "notes": [
+            "[Changed] Admin cookie is now set even if automated purging/banning is disabled.",
+            "[Added] Admin notice for when purgeEnabled setting is falsy."
+        ]
+    },
+    {
         "version": "0.4.2",
         "downloadUrl": "https://github.com/njpanderson/Citrus/archive/master.zip",
         "date": "2017-02-16T06:20:00+00:00",

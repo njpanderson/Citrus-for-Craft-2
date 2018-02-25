@@ -3,7 +3,7 @@ namespace Craft;
 
 class CitrusPlugin extends BasePlugin
 {
-	protected $version = '0.4.2';
+	protected $version = '0.4.3';
 	protected $schemaVersion = '1.2.0';
 	protected $name = 'Citrus';
 	protected $url = 'https://github.com/njpanderson/Citrus';
@@ -114,15 +114,16 @@ class CitrusPlugin extends BasePlugin
 					}
 				}
 			);
-
-			craft()->on('userSession.onBeforeLogin', function (Event $event) {
-				$this->setCitrusCookie('1');
-			});
-
-			craft()->on('userSession.onLogout', function (Event $event) {
-				$this->setCitrusCookie();
-			});
 		}
+
+		// Set/unset Citrus cookies on user rotation
+		craft()->on('userSession.onBeforeLogin', function (Event $event) {
+			$this->setCitrusCookie('1');
+		});
+
+		craft()->on('userSession.onLogout', function (Event $event) {
+			$this->setCitrusCookie();
+		});
 	}
 
 	public function registerCpRoutes()

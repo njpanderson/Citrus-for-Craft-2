@@ -2,6 +2,13 @@
 	background: rgba(255, 255, 255, 0.1);
 }
 
+#page-header .purge-enabled-notice {
+	flex-basis: 100%;
+	margin: 10px 0;
+	padding: 10px;
+	background-color: rgba(255, 255, 255, 0.6);
+}
+
 form.purgeban input[name='query'] {
 	width: 50%;
 }

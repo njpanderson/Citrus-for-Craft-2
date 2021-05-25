@@ -3,7 +3,7 @@ namespace Craft;
 
 class CitrusPlugin extends BasePlugin
 {
-	protected $version = '0.4.3';
+	protected $version = '0.4.4';
 	protected $schemaVersion = '1.2.0';
 	protected $name = 'Citrus';
 	protected $url = 'https://github.com/njpanderson/Citrus';
@@ -75,6 +75,10 @@ class CitrusPlugin extends BasePlugin
 
 	public function init()
 	{
+		if (craft()->isConsole()) {
+			return;
+		}
+
 		parent::init();
 
 		require __DIR__ . '/vendor/autoload.php';
